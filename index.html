@@ -25,144 +25,165 @@
             overflow-x: hidden;
         }
 
-        /* --- ANIMACIÓN CHISPAS --- */
-        .fire-canvas { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at bottom, #2a0f00 0%, #000 80%); }
-        .sparks {
-            position: absolute; width: 100%; height: 100%;
-            background-image: radial-gradient(1px 1px at 20px 30px, var(--brand), transparent);
-            background-size: 80px 80px; animation: moveSparks 8s linear infinite; opacity: 0.3;
+        /* --- FONDO SUTIL CON TRANSICIÓN DINÁMICA --- */
+        .fire-canvas { 
+            position: fixed; 
+            inset: 0; 
+            z-index: -1; 
+            background: radial-gradient(circle at bottom, #1a0f00 0%, #000 80%);
+            transition: background 1.5s ease-in-out;
         }
-        @keyframes moveSparks { from { transform: translateY(0); } to { transform: translateY(-1000px); } }
+        .fire-canvas.active-category {
+            background: radial-gradient(
+                circle at bottom, 
+                var(--category-bg-color, #1a0f00) 0%, 
+                #000 80%
+            );
+        }
+        .sparks {
+            position: absolute; 
+            width: 100%; 
+            height: 100%;
+            background-image: radial-gradient(1px 1px at 20px 30px, var(--brand), transparent);
+            background-size: 100px 100px; 
+            animation: moveSparks 12s linear infinite; 
+            opacity: 0.15;
+        }
+        @keyframes moveSparks { 
+            from { transform: translateY(0); } 
+            to { transform: translateY(-1000px); } 
+        }
 
         header {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            position: fixed; top: 0; width: 100%; height: 60px;
-            background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 1200;
-            border-bottom: 1px solid rgba(244,180,0,0.2);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px;
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            height: 60px;
+            background: rgba(0,0,0,0.95); 
+            backdrop-filter: blur(15px); 
+            z-index: 1200;
+            border-bottom: 1px solid rgba(244,180,0,0.15);
         }
         header.scrolled { background: rgba(0,0,0,0.98); }
-        .logo-container { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--brand); overflow: hidden; box-shadow: 0 0 15px var(--brand); }
+        .logo-container { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            border: 2px solid var(--brand); 
+            overflow: hidden; 
+            box-shadow: 0 0 12px rgba(244,180,0,0.3); 
+        }
         .logo-container img { width: 100%; height: 100%; object-fit: cover; }
-        .fire-text { font-size: 17px; font-weight: 900; color: #fff; text-shadow: 0 0 8px var(--brand); text-transform: uppercase; }
+        .fire-text { 
+            font-size: 17px; 
+            font-weight: 900; 
+            color: #fff; 
+            text-shadow: 0 0 6px rgba(244,180,0,0.4); 
+            text-transform: uppercase; 
+        }
 
-        /* --- HERO SECTION --- */
+        /* --- HERO SECTION (VERSIÓN SUTIL) --- */
         .hero {
             position: relative;
             width: 100%;
-            height: 85vh;
-            min-height: 500px;
-            max-height: 700px;
+            height: 45vh;
+            min-height: 320px;
+            max-height: 400px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: center;
             align-items: center;
-            padding-bottom: 30px;
+            padding: 20px;
         }
         .hero-bg {
             position: absolute;
             inset: 0;
             background:
-                linear-gradient(to bottom, transparent 0%, transparent 40%, rgba(0,0,0,0.6) 70%, rgba(11,11,11,1) 100%),
+                linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(11,11,11,0.95) 100%),
                 url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80') center center / cover no-repeat;
             z-index: -1;
-            animation: heroZoom 20s ease-in-out infinite alternate;
-        }
-        @keyframes heroZoom {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
+            filter: brightness(0.6) contrast(1.1);
         }
         .hero-logo {
-            width: 100px;
-            height: 100px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
-            border: 4px solid var(--brand);
+            border: 2px solid var(--brand);
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(244,180,0,0.6), 0 0 80px rgba(244,180,0,0.3);
-            margin-bottom: 15px;
-            animation: logoPulse 2s ease-in-out infinite;
-        }
-        @keyframes logoPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(244,180,0,0.6), 0 0 80px rgba(244,180,0,0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(244,180,0,0.8), 0 0 100px rgba(244,180,0,0.4); }
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            margin-bottom: 12px;
         }
         .hero-logo img { width: 100%; height: 100%; object-fit: cover; }
         .hero-title {
-            font-size: 32px;
-            font-weight: 900;
+            font-size: 22px;
+            font-weight: 700;
             color: #fff;
-            text-shadow: 0 0 20px var(--brand), 0 4px 20px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 0 0 8px 0;
+            letter-spacing: 1px;
+            margin: 0 0 6px 0;
             text-align: center;
         }
         .hero-tagline {
-            font-size: 16px;
-            color: rgba(255,255,255,0.9);
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-            margin: 0 0 20px 0;
+            font-size: 13px;
+            color: rgba(255,255,255,0.75);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+            margin: 0 0 14px 0;
             text-align: center;
-            font-weight: 500;
+            font-weight: 400;
         }
         .hero-badges {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
         .hero-badge {
-            background: rgba(244,180,0,0.2);
-            border: 1px solid rgba(244,180,0,0.5);
-            color: var(--brand);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            backdrop-filter: blur(10px);
-            animation: badgeGlow 2s ease-in-out infinite alternate;
-        }
-        @keyframes badgeGlow {
-            0% { box-shadow: 0 0 10px rgba(244,180,0,0.2); }
-            100% { box-shadow: 0 0 20px rgba(244,180,0,0.4); }
+            background: rgba(244,180,0,0.12);
+            border: 1px solid rgba(244,180,0,0.25);
+            color: rgba(244,180,0,0.85);
+            padding: 5px 11px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
         }
         .hero-cta {
             background: var(--brand);
             color: #000;
             border: none;
-            padding: 16px 40px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: 900;
+            padding: 11px 26px;
+            border-radius: 22px;
+            font-size: 13px;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 30px rgba(244,180,0,0.4);
+            gap: 7px;
+            box-shadow: 0 4px 12px rgba(244,180,0,0.3);
             transition: all 0.3s ease;
-            animation: ctaBounce 1s ease-in-out infinite;
         }
-        @keyframes ctaBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        .hero-cta:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 18px rgba(244,180,0,0.4); 
         }
-        .hero-cta:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(244,180,0,0.5); }
         .hero-scroll-indicator {
             position: absolute;
-            bottom: 10px;
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255,255,255,0.6);
-            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+            font-size: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: scrollBounce 1.5s ease-in-out infinite;
-        }
-        @keyframes scrollBounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
-            50% { transform: translateX(-50%) translateY(8px); opacity: 0.5; }
+            opacity: 0.6;
         }
 
         /* Promo banner */
@@ -170,10 +191,10 @@
             background: linear-gradient(90deg, #ff6b35, #f4b400, #ff6b35);
             background-size: 200% 100%;
             animation: promoShine 3s linear infinite;
-            padding: 12px 20px;
+            padding: 10px 20px;
             text-align: center;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 13px;
             color: #000;
             position: sticky;
             top: 60px;
@@ -188,20 +209,115 @@
 
         .tabs {
             display: flex; gap: 10px; overflow-x: auto; padding: 12px 15px;
-            background: rgba(0,0,0,0.95); position: sticky; top: 108px;
+            background: rgba(0,0,0,0.95); position: sticky; top: 100px;
             width: 100%; z-index: 1100; scrollbar-width: none; scroll-behavior: smooth;
         }
         .tabs::-webkit-scrollbar { display: none; }
         .tabs button {
             background: #1a1a1a; color: #888; border: none;
-            padding: 10px 20px; border-radius: 25px; font-weight: 700; white-space: nowrap; transition: 0.4s;
+            padding: 10px 20px; border-radius: 25px; font-weight: 700; 
+            white-space: nowrap; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .tabs button.active { background: var(--brand); color: #000; box-shadow: 0 0 15px rgba(244,180,0,0.4); }
+        .tabs button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--category-color, var(--brand));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .tabs button.active::before {
+            opacity: 1;
+        }
+        .tabs button span {
+            position: relative;
+            z-index: 1;
+        }
+        .tabs button.active { 
+            color: #000; 
+            box-shadow: 0 0 20px var(--category-color, var(--brand));
+        }
 
-        .category-title { padding: 25px 20px 15px; font-size: 18px; font-weight: 900; color: var(--brand); text-transform: uppercase; }
-        #menu-container { padding: 0 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 900px; margin: auto; }
+        .category-title { 
+            padding: 25px 20px 15px; 
+            font-size: 18px; 
+            font-weight: 900; 
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .menu-section {
+            position: relative;
+            padding: 20px 0;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .menu-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .menu-section.active::before {
+            opacity: 1;
+        }
+        
+        #menu-container { 
+            padding: 0 15px; 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 15px; 
+            max-width: 900px; 
+            margin: auto;
+            position: relative;
+            z-index: 1;
+        }
 
-        .item { background: var(--card); border-radius: 20px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
+        .item { 
+            background: var(--card); 
+            border-radius: 20px; 
+            overflow: hidden; 
+            position: relative; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, var(--category-color, var(--brand)) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .item:hover::before {
+            opacity: 0.08;
+        }
+        
+        .item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
         .item-img-cont { width: 100%; aspect-ratio: 1/1; position: relative; background: #111; display: flex; align-items: center; justify-content: center; }
         .item-img-cont img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -227,11 +343,7 @@
             background: var(--brand); border-radius: 35px;
             display: none; align-items: center; justify-content: space-between;
             padding: 0 8px 0 25px; font-weight: 900; color: #000; z-index: 1500; border: none;
-            animation: cartPulse 2s infinite;
-        }
-        @keyframes cartPulse {
-            0%, 100% { box-shadow: 0 10px 30px rgba(244, 180, 0, 0.3); transform: translateX(-50%) scale(1); }
-            50% { box-shadow: 0 10px 40px rgba(244, 180, 0, 0.6); transform: translateX(-50%) scale(1.02); }
+            box-shadow: 0 8px 25px rgba(244, 180, 0, 0.4);
         }
 
         .cart-black-box { background: #000; color: #fff; padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; position: relative; }
@@ -300,19 +412,19 @@
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         @media (max-width: 400px) {
             #menu-container { grid-template-columns: 1fr; }
-            .hero-title { font-size: 26px; }
-            .hero-tagline { font-size: 14px; }
-            .hero-logo { width: 80px; height: 80px; }
-            .hero-cta { padding: 14px 30px; font-size: 14px; }
+            .hero-title { font-size: 20px; }
+            .hero-tagline { font-size: 12px; }
+            .hero-logo { width: 55px; height: 55px; }
+            .hero-cta { padding: 10px 22px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
-<div class="fire-canvas"><div class="sparks"></div></div>
+<div class="fire-canvas" id="dynamic-bg"><div class="sparks"></div></div>
 
 <header id="main-header">
-    <div class="logo-container"><img src="https://i.ibb.co/tTKrch7P/Whats-App-Image-2026-01-31-at-4-04-56-PM.jpg" alt="Logo"></div>
+    <div class="logo-container"><img src="https://i.ibb.co/tTKrch7P/Whats-App-Image-2026-01-31-at-4-04-56-PM.jpg" alt="Logo J&M Fast Food"></div>
     <h1 class="fire-text">J&M FAST FOOD</h1>
 </header>
 
@@ -377,51 +489,357 @@
     <input type="tel" id="telefono" class="input-field" placeholder="WhatsApp *">
     
     <div id="div-domicilio">
-        <input type="text" id="direccion" class="input-field" placeholder="Dirección y Barrio *">
-        <div class="gps-notice-box" id="gps-box">
-            <p>📍 <b>¿Estás en el lugar de entrega?</b><br>Presiona el botón para obtener tu ubicación exacta por GPS.</p>
-            <button type="button" class="btn-gps-action" id="gps-trigger" onclick="obtenerUbicacion()">OBTENER UBICACIÓN GPS</button>
-            <input type="hidden" id="gps-hidden-value">
+        <!-- Formulario de dirección SIMPLIFICADO -->
+        <label style="color:var(--brand); font-size:12px; font-weight:700; margin-left:5px; display:block; margin-bottom:5px;">📍 DIRECCIÓN DE ENTREGA:</label>
+        
+        <textarea 
+            id="direccion-completa" 
+            class="input-field" 
+            placeholder="Ej: Calle 45 #23-10, Boston, Barranquilla" 
+            style="min-height:70px; resize:vertical; font-family: inherit;"
+        ></textarea>
+        
+        <div style="background:rgba(244,180,0,0.08); border:1px solid rgba(244,180,0,0.3); border-radius:12px; padding:12px; margin-top:10px; margin-bottom:12px;">
+            <p style="margin:0 0 10px 0; font-size:11px; color:var(--muted); text-align:center; line-height:1.4;">
+                📍 <b style="color:var(--brand);">¿Estás en el lugar de entrega?</b><br>
+                Usa el GPS para llenar la dirección automáticamente
+            </p>
+            <button type="button" class="btn-gps-action" id="gps-trigger" onclick="obtenerUbicacion()">
+                📍 DETECTAR MI UBICACIÓN GPS
+            </button>
         </div>
+        
+        <input type="hidden" id="gps-hidden-value">
     </div>
     
-    <button style="background:var(--brand); padding:20px; border-radius:15px; border:none; font-weight:900; cursor:pointer; font-size:16px; margin-top:10px;" onclick="enviarPedido()">PEDIR POR WHATSAPP 🚀</button>
+    <button id="btn-enviar" style="background:var(--brand); padding:20px; border-radius:15px; border:none; font-weight:900; cursor:pointer; font-size:16px; margin-top:10px;" onclick="enviarPedido()">PEDIR POR WHATSAPP 🚀</button>
 </div>
+
+<!-- Modal de confirmación GPS mejorado -->
+<div class="gps-modal" id="gps-modal" style="display:none;">
+    <div class="gps-modal-content">
+        <div class="gps-icon">📍</div>
+        <h3 class="gps-title">Confirma tu dirección</h3>
+        
+        <div class="gps-address" id="gps-detected-address"></div>
+        
+        <div class="gps-warning">
+            <div class="gps-warning-title">
+                <span>⚠️</span>
+                <span>Agrega detalles específicos:</span>
+            </div>
+            <ul class="gps-warning-list">
+                <li>Número de casa o apartamento</li>
+                <li>Torre/bloque (si aplica)</li>
+                <li>Piso</li>
+                <li>Referencias: color de casa, negocios cercanos, etc.</li>
+            </ul>
+        </div>
+        
+        <div class="gps-buttons">
+            <button class="gps-btn gps-btn-cancel" onclick="cerrarModalGPS()">
+                Corregir manualmente
+            </button>
+            <button class="gps-btn gps-btn-confirm" onclick="confirmarDireccionGPS()">
+                Usar esta dirección
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos para el modal GPS */
+.gps-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    z-index: 3500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s;
+}
+
+.gps-modal-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    padding: 30px;
+    border-radius: 25px;
+    max-width: 500px;
+    width: 90%;
+    border: 2px solid #2196f3;
+    box-shadow: 0 20px 60px rgba(33,150,243,0.3);
+    animation: slideUp 0.4s;
+}
+
+.gps-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(33,150,243,0.15);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+.gps-title {
+    color: #2196f3;
+    margin: 0 0 15px 0;
+    font-size: 22px;
+    text-align: center;
+    font-weight: 900;
+}
+
+.gps-address {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.gps-warning {
+    background: rgba(255,193,7,0.1);
+    border: 1px solid rgba(255,193,7,0.3);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.gps-warning-title {
+    color: #ffc107;
+    font-weight: 900;
+    font-size: 14px;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gps-warning-list {
+    margin: 0;
+    padding-left: 20px;
+    color: rgba(255,193,7,0.8);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.gps-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.gps-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.gps-btn-cancel {
+    background: #333;
+    color: #fff;
+}
+
+.gps-btn-cancel:hover {
+    background: #444;
+}
+
+.gps-btn-confirm {
+    background: #2196f3;
+    color: #fff;
+}
+
+.gps-btn-confirm:hover {
+    background: #1976d2;
+    transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
 
 <script>
 const SHEET_ID = '12KJLmF_Xvg0QficA4Zx3g7l0dYNEwd0O_PFcG8TfTlI';
 const WHATSAPP = '573334311652';
 const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
+// Configuración de domicilios (ajusta las coordenadas de tu restaurante)
+const DIRECCION_BASE = {
+    lat: 10.962536,  // Latitud de J&M Fast Food
+    lng: -74.814391  // Longitud de J&M Fast Food
+};
+
+const TARIFA_BASE = 3000;           // Tarifa mínima de domicilio
+const TARIFA_POR_KM = 1000;        // Costo por kilómetro adicional
+const DISTANCIA_GRATIS = 2;        // Primeros 2km con tarifa base
+const DISTANCIA_MAXIMA = 10;       // Máximo 10km de cobertura
+
 let allItems = []; let cart = {}; let timers = {}; let modoEntrega = 'Domicilio';
 
+// Generar color único para cada categoría
+function generarColorCategoria(texto) {
+    let hash = 0;
+    for (let i = 0; i < texto.length; i++) {
+        hash = texto.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Generar HSL con saturación y luminosidad controladas para colores suaves
+    const h = Math.abs(hash % 360);
+    const s = 65 + (hash % 20); // 65-85% saturación
+    const l = 50 + (hash % 15); // 50-65% luminosidad
+    
+    return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+// Aplicar colores a las categorías
+function aplicarColoresCategoria() {
+    const sections = document.querySelectorAll('.menu-section');
+    
+    sections.forEach((section, index) => {
+        const categoryName = section.id.replace('cat-', '');
+        const color = generarColorCategoria(categoryName);
+        
+        // Aplicar color al fondo de la sección
+        section.style.setProperty('--category-color', color);
+        section.querySelector('.category-title').style.color = color;
+        
+        // Fondo degradado transparente
+        section.style.background = `linear-gradient(180deg, 
+            ${color}08 0%, 
+            transparent 30%, 
+            transparent 70%, 
+            ${color}05 100%)`;
+        
+        // Aplicar color a las tarjetas de esta categoría
+        const items = section.querySelectorAll('.item');
+        items.forEach(item => {
+            item.style.setProperty('--category-color', color);
+        });
+    });
+}
+
+// Detectar categoría visible y activar efectos
+function detectarCategoriaVisible() {
+    const sections = document.querySelectorAll('.menu-section');
+    const tabs = document.querySelectorAll('.tabs button');
+    const bg = document.getElementById('dynamic-bg');
+    
+    let categoriaActual = null;
+    
+    sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2;
+        
+        if (isVisible) {
+            categoriaActual = section.id.replace('cat-', '');
+            section.classList.add('active');
+            
+            // Activar tab correspondiente
+            tabs.forEach(tab => {
+                const tabText = tab.textContent.trim();
+                if (tabText === categoriaActual) {
+                    tab.classList.add('active');
+                    const color = generarColorCategoria(categoriaActual);
+                    tab.style.setProperty('--category-color', color);
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // NUEVO: Cambiar color de fondo dinámicamente
+            const color = generarColorCategoria(categoriaActual);
+            const colorOpaco = color.replace('hsl', 'hsla').replace(')', ', 0.15)');
+            bg.style.setProperty('--category-bg-color', colorOpaco);
+            bg.classList.add('active-category');
+        } else {
+            section.classList.remove('active');
+        }
+    });
+}
+
+function parsearLineaCSV(linea) {
+    const resultado = [];
+    let actual = '';
+    let entreComillas = false;
+    
+    for (let i = 0; i < linea.length; i++) {
+        const char = linea[i];
+        if (char === '"') {
+            entreComillas = !entreComillas;
+        } else if (char === ',' && !entreComillas) {
+            resultado.push(actual.trim().replace(/"/g,''));
+            actual = '';
+        } else {
+            actual += char;
+        }
+    }
+    resultado.push(actual.trim().replace(/"/g,''));
+    return resultado;
+}
+
 async function loadData() {
+    // Mostrar indicador de carga
+    document.getElementById('full-menu').innerHTML = 
+        '<div style="text-align:center; padding:50px; color:var(--brand);">⌛ Cargando menú...</div>';
+    
     try {
         const r = await fetch(URL);
         const csv = await r.text();
         const rows = csv.split('\n').slice(1);
         allItems = rows.map(row => {
-            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const cols = parsearLineaCSV(row);
             return { 
-                cat: cols[0]?.replace(/"/g,'').trim(), 
-                name: cols[1]?.replace(/"/g,'').trim(), 
+                cat: cols[0]?.trim(), 
+                name: cols[1]?.trim(), 
                 price: Number(cols[2]), 
-                desc: cols[3]?.replace(/"/g,'').trim(), 
-                img: cols[4]?.replace(/"/g,'').trim() 
+                desc: cols[3]?.trim(), 
+                img: cols[4]?.trim() 
             };
         }).filter(p => p.name);
         renderMenu();
-    } catch (e) { console.error("Error cargando menú:", e); }
+        
+        // Aplicar colores a las categorías
+        setTimeout(() => {
+            aplicarColoresCategoria();
+            detectarCategoriaVisible();
+        }, 100);
+        
+        // Detectar scroll para activar efectos de categoría
+        window.addEventListener('scroll', detectarCategoriaVisible);
+    } catch (e) { 
+        console.error("Error cargando menú:", e);
+        document.getElementById('full-menu').innerHTML = 
+            '<div style="text-align:center; padding:50px; color:var(--error);">❌ Error al cargar el menú.<br><button onclick="loadData()" style="margin-top:20px; padding:10px 20px; background:var(--brand); border:none; border-radius:10px; cursor:pointer; font-weight:700;">Reintentar</button></div>';
+    }
 }
 
 function renderMenu() {
     const cats = [...new Set(allItems.map(i => i.cat))];
     document.getElementById('tab-bar').innerHTML = cats.map((c, idx) => 
-        `<button onclick="scrollToCat('${c}')" id="tab-${c.replace(/\s/g, '')}" class="${idx===0?'active':''}">${c}</button>`
+        `<button onclick="scrollToCat('${c}')" id="tab-${c.replace(/\s/g, '')}" class="${idx===0?'active':''}">
+            <span>${c}</span>
+        </button>`
     ).join('');
     
     document.getElementById('full-menu').innerHTML = cats.map(c => `
-        <section id="cat-${c.replace(/\s/g, '')}" class="menu-section">
+        <section id="cat-${c.replace(/\s/g, '')}" class="menu-section ${cats.indexOf(c)===0?'active':''}">
             <h2 class="category-title">${c}</h2>
             <div id="menu-container">
                 ${allItems.filter(i => i.cat === c).map(p => {
@@ -430,7 +848,7 @@ function renderMenu() {
                     return `
                     <div class="item">
                         <div class="item-img-cont">
-                            ${p.img ? `<img src="${p.img}">` : `<span style="font-size:40px;">🍔</span>`}
+                            ${p.img ? `<img src="${p.img}" alt="${p.name}">` : `<span style="font-size:40px;">🍔</span>`}
                             <div class="qty-btn ${isExp}" id="qty-btn-${id}" onclick="expandBtn('${p.name}', ${p.price}, '${p.cat}')">
                                 ${cart[p.name] ? 
                                     `<button onclick="changeQty(event,'${p.name}',-1)">-</button><span id="val-${id}">${cart[p.name].qty}</span><button onclick="changeQty(event,'${p.name}',1)">+</button>` 
@@ -463,6 +881,12 @@ function highlightTab(id) {
     const activeTab = document.getElementById(`tab-${id}`);
     if (activeTab) {
         activeTab.classList.add('active');
+        
+        // Aplicar color de la categoría al tab activo
+        const categoryName = id;
+        const color = generarColorCategoria(categoryName);
+        activeTab.style.setProperty('--category-color', color);
+        
         const container = document.getElementById('tab-bar');
         container.scrollTo({ left: activeTab.offsetLeft - (container.offsetWidth / 2) + (activeTab.offsetWidth / 2), behavior: 'smooth' });
     }
@@ -478,16 +902,33 @@ window.addEventListener('scroll', () => {
 });
 
 function expandBtn(name, price, cat) {
+    const btnId = `qty-btn-${encodeURIComponent(name)}`;
+    const btn = document.getElementById(btnId);
+    
     if(!cart[name]) { 
-        cart[name] = { price, qty: 1, cat, note: "" }; 
-        renderMenu(); 
+        cart[name] = { price, qty: 1, cat, note: "" };
+        // Solo actualizar el botón específico en lugar de re-renderizar todo
+        btn.classList.add('expanded');
+        btn.innerHTML = `<button onclick="changeQty(event,'${name}',-1)">-</button><span id="val-${encodeURIComponent(name)}">${cart[name].qty}</span><button onclick="changeQty(event,'${name}',1)">+</button>`;
         updateCartUI(); 
+    } else {
+        btn.classList.add('expanded');
     }
-    document.getElementById(`qty-btn-${encodeURIComponent(name)}`).classList.add('expanded');
     resetTimer(name);
 }
 
 function resetTimer(name) {
+    // Cerrar todos los demás botones expandidos
+    document.querySelectorAll('.qty-btn.expanded').forEach(btn => {
+        const btnName = btn.id.replace('qty-btn-', '');
+        if(decodeURIComponent(btnName) !== name) {
+            btn.classList.remove('expanded');
+            if(timers[decodeURIComponent(btnName)]) {
+                clearTimeout(timers[decodeURIComponent(btnName)]);
+            }
+        }
+    });
+    
     if(timers[name]) clearTimeout(timers[name]);
     timers[name] = setTimeout(() => {
         const btn = document.getElementById(`qty-btn-${encodeURIComponent(name)}`);
@@ -497,10 +938,20 @@ function resetTimer(name) {
 
 function changeQty(e, name, delta) {
     if(e) e.stopPropagation();
+    
+    if(!cart[name]) return; // Seguridad extra
+    
     cart[name].qty += delta;
+    const btnId = `qty-btn-${encodeURIComponent(name)}`;
+    const btn = document.getElementById(btnId);
+    
     if(cart[name].qty <= 0) { 
-        delete cart[name]; 
-        renderMenu(); 
+        delete cart[name];
+        // Solo actualizar este botón específico
+        if(btn) {
+            btn.classList.remove('expanded');
+            btn.innerHTML = '<span>+</span>';
+        }
     } else { 
         const valSpan = document.getElementById(`val-${encodeURIComponent(name)}`);
         if(valSpan) valSpan.innerText = cart[name].qty;
@@ -573,34 +1024,113 @@ function setEntrega(t) {
 
 function cerrarForm() { document.getElementById('form-modal').style.display = 'none'; }
 
+let direccionDetectadaGPS = "";
+
 function obtenerUbicacion() {
     const btn = document.getElementById('gps-trigger');
+    const direccionInput = document.getElementById('direccion-completa');
     const hidden = document.getElementById('gps-hidden-value');
-    if (!navigator.geolocation) return alert("GPS no disponible");
-    btn.innerHTML = "⌛ VERIFICANDO...";
+    
+    if (!navigator.geolocation) {
+        return alert("GPS no disponible en tu navegador");
+    }
+    
+    btn.innerHTML = "⌛ DETECTANDO...";
+    btn.disabled = true;
+    
     navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            hidden.value = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-            btn.innerHTML = "✅ UBICACIÓN REGISTRADA";
-            btn.classList.add('success');
+        async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            
+            // Guardar link de Google Maps
+            hidden.value = `https://www.google.com/maps?q=${lat},${lng}`;
+            
+            // Obtener dirección desde OpenStreetMap
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data && data.display_name) {
+                    direccionDetectadaGPS = data.display_name;
+                    
+                    // Mostrar modal de confirmación con sugerencias
+                    mostrarModalConfirmacionGPS(direccionDetectadaGPS);
+                    
+                    btn.innerHTML = "📍 DETECTAR MI UBICACIÓN GPS";
+                    btn.disabled = false;
+                } else {
+                    throw new Error('No se pudo obtener la dirección');
+                }
+            } catch (error) {
+                console.error('Error obteniendo dirección:', error);
+                direccionInput.value = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+                alert("GPS detectado, pero escribe tu dirección completa manualmente");
+                btn.innerHTML = "📍 DETECTAR MI UBICACIÓN GPS";
+                btn.disabled = false;
+            }
         },
-        () => { 
-            btn.innerHTML = "OBTENER UBICACIÓN GPS";
-            alert("Activa el GPS y permite el acceso."); 
+        (error) => { 
+            btn.innerHTML = "📍 DETECTAR MI UBICACIÓN GPS";
+            btn.disabled = false;
+            alert("Por favor activa el GPS y permite el acceso a tu ubicación."); 
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true, timeout: 10000 }
     );
 }
 
+function mostrarModalConfirmacionGPS(direccion) {
+    const modal = document.getElementById('gps-modal');
+    const addressDiv = document.getElementById('gps-detected-address');
+    
+    addressDiv.textContent = direccion;
+    modal.style.display = 'flex';
+}
+
+function cerrarModalGPS() {
+    const modal = document.getElementById('gps-modal');
+    modal.style.display = 'none';
+    
+    // Enfocar el campo de dirección para que editen manualmente
+    const inputDireccion = document.getElementById('direccion-completa');
+    inputDireccion.focus();
+}
+
+function confirmarDireccionGPS() {
+    const inputDireccion = document.getElementById('direccion-completa');
+    inputDireccion.value = direccionDetectadaGPS + '\n\n[Agrega aquí: #casa, torre, piso, referencia]';
+    
+    cerrarModalGPS();
+    
+    // Enfocar el input para que agregue los detalles
+    setTimeout(() => {
+        inputDireccion.focus();
+        inputDireccion.setSelectionRange(direccionDetectadaGPS.length, inputDireccion.value.length);
+    }, 300);
+}
+
 function enviarPedido() {
+    const btn = document.getElementById('btn-enviar');
+    
+    // Evitar doble envío
+    if(btn.disabled) return;
+    
+    // Verificar que el carrito no esté vacío
+    if(Object.keys(cart).length === 0) {
+        alert("Tu carrito está vacío");
+        return;
+    }
+    
     const cli = document.getElementById('cliente');
     const tel = document.getElementById('telefono');
-    const dir = document.getElementById('direccion');
+    const dirCompleta = document.getElementById('direccion-completa');
     const gpsLink = document.getElementById('gps-hidden-value').value;
     const pago = document.getElementById('tipoPago');
     let error = false;
 
-    [cli, tel, (modoEntrega === 'Domicilio' ? dir : null)].forEach(input => {
+    // Validar campos obligatorios
+    [cli, tel, (modoEntrega === 'Domicilio' ? dirCompleta : null)].forEach(input => {
         if (input && !input.value.trim()) {
             input.classList.add('required-error');
             setTimeout(() => input.classList.remove('required-error'), 2000);
@@ -609,6 +1139,14 @@ function enviarPedido() {
     });
 
     if(error) return alert("Por favor completa los campos obligatorios (*)");
+    
+    // Validar teléfono
+    if(tel.value.trim().length < 10) {
+        alert("Por favor ingresa un número de teléfono válido (mínimo 10 dígitos)");
+        tel.classList.add('required-error');
+        setTimeout(() => tel.classList.remove('required-error'), 2000);
+        return;
+    }
 
     let totalPedido = 0;
     const grupos = {};
@@ -625,7 +1163,7 @@ function enviarPedido() {
     t += `📱 *Tel:* ${tel.value.trim()}\n`;
     t += `🛵 *Entrega:* ${modoEntrega}\n`;
     if(modoEntrega==='Domicilio') {
-        t += `📍 *Dir:* ${dir.value.trim()}\n`;
+        t += `📍 *Dir:* ${dirCompleta.value.trim()}\n`;
         if(gpsLink) t += `🗺️ *GPS:* ${gpsLink}\n`;
     }
     t += `💳 *Pago:* ${pago.value}\n\n`;
@@ -642,12 +1180,83 @@ function enviarPedido() {
     t += `\n━━━━━━━━━━━━━━━━\n`;
     t += `💰 *TOTAL: $${totalPedido.toLocaleString('es-CO')}*`;
 
+    // Deshabilitar botón temporalmente
+    btn.disabled = true;
+    btn.innerHTML = "PREPARANDO...";
+
+    // En lugar de abrir WhatsApp directamente, mostrar confirmación
+    mostrarConfirmacionEnvio(t, totalPedido);
+    
+    // Rehabilitar botón después de 2 segundos
+    setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = "PEDIR POR WHATSAPP 🚀";
+    }, 2000);
+}
+
+function mostrarConfirmacionEnvio(mensaje, total) {
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div style="position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:3000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); animation:fadeIn 0.3s;">
+            <div style="background:linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); padding:30px; border-radius:25px; max-width:400px; width:90%; border:2px solid var(--brand); box-shadow:0 20px 60px rgba(244,180,0,0.3); animation:slideUp 0.4s;">
+                
+                <div style="text-align:center; margin-bottom:25px;">
+                    <div style="width:80px; height:80px; background:var(--brand); border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:40px; animation:pulse 1s infinite;">
+                        ✓
+                    </div>
+                    <h3 style="color:var(--brand); margin:0 0 8px 0; font-size:22px;">¡Pedido Listo!</h3>
+                    <p style="color:#aaa; margin:0; font-size:14px;">Total: <span style="color:#fff; font-weight:900; font-size:18px;">$${total.toLocaleString('es-CO')}</span></p>
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03); border-radius:15px; padding:15px; margin-bottom:20px; border:1px solid #333;">
+                    <p style="margin:0; color:#ccc; font-size:13px; text-align:center; line-height:1.6;">
+                        Te vamos a redirigir a <b style="color:var(--brand);">WhatsApp</b> para confirmar tu pedido
+                    </p>
+                </div>
+
+                <div style="display:flex; gap:10px;">
+                    <button onclick="cerrarConfirmacion()" style="flex:1; background:#333; border:none; padding:15px; border-radius:12px; color:#fff; font-weight:700; cursor:pointer; font-size:14px;">
+                        Cancelar
+                    </button>
+                    <button onclick="abrirWhatsApp(\`${mensaje.replace(/`/g, '\\`')}\`)" style="flex:2; background:var(--brand); border:none; padding:15px; border-radius:12px; color:#000; font-weight:900; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <span>Abrir WhatsApp</span>
+                        <span style="font-size:18px;">💬</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+            @keyframes slideUp { from { transform:translateY(30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+            @keyframes pulse { 0%, 100% { transform:scale(1); } 50% { transform:scale(1.1); } }
+        </style>
+    `;
+    modal.id = 'confirmacion-envio';
+    document.body.appendChild(modal);
+}
+
+function cerrarConfirmacion() {
+    const modal = document.getElementById('confirmacion-envio');
+    if(modal) modal.remove();
+}
+
+function abrirWhatsApp(mensaje) {
+    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP}&text=${encodeURIComponent(mensaje)}`, '_blank');
+    
+    // Limpiar carrito y cerrar modales
+    Object.keys(cart).forEach(nombre => {
+        const btnId = `qty-btn-${encodeURIComponent(nombre)}`;
+        const botonProducto = document.getElementById(btnId);
+        if(botonProducto) {
+            botonProducto.classList.remove('expanded');
+            botonProducto.innerHTML = '<span>+</span>';
+        }
+    });
+    
     cart = {};
     updateCartUI();
-    renderMenu();
     cerrarForm();
-
-    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP}&text=${encodeURIComponent(t)}`, '_blank');
+    cerrarConfirmacion();
 }
 
 loadData();
@@ -663,5 +1272,8 @@ window.addEventListener('scroll', () => {
     }
 });
 </script>
+
+
+
 </body>
 </html>
