@@ -23,6 +23,8 @@
             padding-top: 0;
             padding-bottom: 110px;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
         }
 
         /* --- FONDO SUTIL CON TRANSICIÓN DINÁMICA --- */
@@ -61,12 +63,16 @@
             gap: 12px;
             position: fixed; 
             top: 0; 
+            left: 0;
+            right: 0;
             width: 100%; 
             height: 60px;
             background: rgba(0,0,0,0.95); 
             backdrop-filter: blur(15px); 
             z-index: 1200;
             border-bottom: 1px solid rgba(244,180,0,0.15);
+            transform: translateZ(0);
+            will-change: transform;
         }
         header.scrolled { background: rgba(0,0,0,0.98); }
         .logo-container { 
@@ -198,7 +204,11 @@
             color: #000;
             position: sticky;
             top: 60px;
+            left: 0;
+            right: 0;
             z-index: 1150;
+            transform: translateZ(0);
+            will-change: transform;
         }
         @keyframes promoShine {
             0% { background-position: 0% 50%; }
@@ -207,27 +217,42 @@
 
         .menu-wrapper { padding-top: 20px; }
 
-        /* 🔥 BOTONES DE CATEGORÍAS MEJORADOS - MÁS GRANDES Y LEGIBLES */
         .tabs {
             display: flex; gap: 10px; overflow-x: auto; padding: 12px 15px;
-            background: rgba(0,0,0,0.95); position: sticky; top: 100px;
-            width: 100%; z-index: 1100; scrollbar-width: none; scroll-behavior: smooth;
+            background: rgba(0,0,0,0.95); 
+            position: sticky; 
+            top: 100px;
+            left: 0;
+            right: 0;
+            width: 100%; 
+            z-index: 1100; 
+            scrollbar-width: none; 
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            transform: translateZ(0);
+            will-change: transform;
         }
         .tabs::-webkit-scrollbar { display: none; }
         .tabs button {
             background: #1a1a1a; color: #888; border: none;
-            padding: 14px 28px; /* AUMENTADO de 10px 20px */
+            padding: 14px 26px; 
             border-radius: 25px; 
             font-weight: 700; 
-            font-size: 15px; /* AUMENTADO de tamaño implícito */
+            font-size: 15px;
             white-space: nowrap; 
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            min-height: 48px; /* Mayor área táctil */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-shrink: 0;
+            min-width: fit-content;
+        }
+        
+        /* Tamaño aún más grande en móviles pequeños */
+        @media (max-width: 480px) {
+            .tabs button {
+                padding: 16px 28px;
+                font-size: 16px;
+            }
         }
         .tabs button::before {
             content: '';
@@ -250,15 +275,6 @@
         .tabs button.active { 
             color: #000; 
             box-shadow: 0 0 20px var(--category-color, var(--brand));
-        }
-        
-        /* Aún más grandes en pantallas muy pequeñas */
-        @media (max-width: 400px) {
-            .tabs button {
-                padding: 15px 30px;
-                font-size: 16px;
-                min-height: 50px;
-            }
         }
 
         .category-title { 
@@ -356,12 +372,35 @@
         .item-price { font-weight: 800; color: var(--brand); }
 
         .cart-float {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
-            width: 92%; max-width: 400px; height: 62px;
-            background: var(--brand); border-radius: 35px;
-            display: none; align-items: center; justify-content: space-between;
-            padding: 0 8px 0 25px; font-weight: 900; color: #000; z-index: 1500; border: none;
-            box-shadow: 0 8px 25px rgba(244, 180, 0, 0.4);
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: calc(100% - 30px);
+            max-width: 420px; 
+            height: 65px;
+            background: var(--brand); 
+            border-radius: 35px;
+            display: none; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 0 10px 0 25px; 
+            font-weight: 900; 
+            color: #000; 
+            z-index: 1500; 
+            border: none;
+            box-shadow: 0 8px 25px rgba(244, 180, 0, 0.5);
+            cursor: pointer;
+        }
+        
+        /* Mejor ajuste en móvil */
+        @media (max-width: 480px) {
+            .cart-float {
+                width: calc(100% - 20px);
+                height: 70px;
+                bottom: 15px;
+                padding: 0 8px 0 20px;
+            }
         }
 
         .cart-black-box { background: #000; color: #fff; padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; position: relative; }
@@ -410,107 +449,41 @@
         .input-field:focus { border-color: var(--brand); outline: none; }
         .input-field.required-error { border: 1px solid var(--error); background: rgba(255, 68, 68, 0.1); animation: shake 0.4s; }
 
-        /* 🔥 NUEVA CAJA GPS PROFESIONAL - NO MODIFICA DIRECCIÓN */
         .gps-notice-box {
-            background: linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(33, 150, 243, 0.03) 100%);
-            border: 2px solid rgba(33, 150, 243, 0.3);
-            border-radius: 15px;
-            padding: 18px;
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .gps-notice-box .gps-icon {
-            text-align: center;
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-        
-        .gps-notice-box .gps-title {
-            color: #2196f3;
-            font-size: 14px;
-            font-weight: 900;
-            text-align: center;
-            margin: 0 0 8px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .gps-notice-box .gps-description {
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.6;
-            text-align: center;
-            margin: 0 0 15px 0;
-        }
-        
-        .gps-notice-box .gps-warning {
-            background: rgba(255, 193, 7, 0.08);
-            border: 1px dashed rgba(255, 193, 7, 0.3);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .gps-notice-box .gps-warning-text {
-            color: #ffc107;
-            font-size: 11px;
-            line-height: 1.5;
-            margin: 0;
-            text-align: center;
-        }
-        
-        .btn-gps-action {
-            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-            border: none;
-            color: white;
-            padding: 14px 20px;
+            background: rgba(244, 180, 0, 0.08);
+            border: 1px solid rgba(244, 180, 0, 0.3);
             border-radius: 12px;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .btn-gps-action:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
-        }
-        
-        .btn-gps-action:active {
-            transform: translateY(0);
-        }
-        
-        .btn-gps-action.success {
-            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-        }
-        
-        .btn-gps-action.loading {
-            background: #555;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        
-        .gps-status {
+            padding: 12px;
+            margin-top: -5px;
+            margin-bottom: 15px;
             text-align: center;
-            margin-top: 10px;
-            font-size: 11px;
-            color: var(--muted);
-            display: none;
         }
-        
-        .gps-status.active {
-            display: block;
+        .gps-notice-box p { margin: 0 0 10px 0; font-size: 11px; color: var(--muted); line-height: 1.4; }
+        .btn-gps-action {
+            background: rgba(76,175,80,0.1); 
+            border: 2px solid rgba(76,175,80,0.3); 
             color: #4caf50;
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            font-size: 13px; 
+            font-weight: 800;
+            cursor: pointer; 
+            width: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            transition: all 0.3s ease;
+        }
+        .btn-gps-action:hover {
+            background: rgba(76,175,80,0.15);
+            border-color: rgba(76,175,80,0.5);
+        }
+        .btn-gps-action.activo { 
+            background: #4caf50; 
+            border-color: #4caf50; 
+            color: white;
+            box-shadow: 0 4px 12px rgba(76,175,80,0.4);
         }
 
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
@@ -593,54 +566,56 @@
     <input type="tel" id="telefono" class="input-field" placeholder="WhatsApp *">
     
     <div id="div-domicilio">
+        <!-- Formulario de dirección SIMPLIFICADO -->
         <label style="color:var(--brand); font-size:12px; font-weight:700; margin-left:5px; display:block; margin-bottom:5px;">📍 DIRECCIÓN DE ENTREGA:</label>
         
         <textarea 
             id="direccion-completa" 
             class="input-field" 
-            placeholder="Escribe tu dirección completa: Calle, número, barrio, referencias..." 
-            style="min-height: 80px; resize: vertical; font-family: inherit;"
+            placeholder="Ej: Calle 45 #23-10, Apto 301, Torre B, Boston, Barranquilla
+Referencia: Edificio azul al lado del supermercado" 
+            style="min-height:85px; resize:vertical; font-family: inherit;"
         ></textarea>
         
-        <!-- 🔥 NUEVA CAJA GPS MEJORADA -->
-        <div class="gps-notice-box">
-            <div class="gps-icon">📍</div>
-            <div class="gps-title">Ubicación GPS Precisa</div>
-            <p class="gps-description">
-                <strong>¿Estás físicamente en el lugar de entrega?</strong><br>
-                Comparte tu ubicación GPS para que el domiciliario te encuentre con mayor precisión.
+        <div style="background:rgba(76,175,80,0.08); border:1px solid rgba(76,175,80,0.25); border-radius:12px; padding:12px; margin-top:10px; margin-bottom:12px;">
+            <p style="margin:0 0 10px 0; font-size:11px; color:#aaa; text-align:center; line-height:1.5;">
+                💡 <b style="color:#4caf50;">Opcional:</b> ¿Estás en el lugar de entrega ahora?<br>
+                <span style="font-size:10px; color:#999;">Agrega tu ubicación GPS para que el domiciliario te encuentre más fácil</span>
             </p>
-            
-            <div class="gps-warning">
-                <p class="gps-warning-text">
-                    ⚠️ <strong>Importante:</strong> Presiona este botón SOLO si estás en la ubicación donde recibirás el pedido. Tu dirección debe estar escrita arriba.
-                </p>
-            </div>
-            
-            <button type="button" class="btn-gps-action" id="gps-trigger" onclick="obtenerUbicacionGPS()">
-                <span>📍</span>
-                <span>Compartir Mi Ubicación GPS</span>
+            <button type="button" class="btn-gps-action" id="gps-trigger" onclick="obtenerUbicacion()">
+                <span id="gps-icon">📍</span>
+                <span id="gps-text">AGREGAR MI UBICACIÓN GPS</span>
             </button>
-            
-            <div class="gps-status" id="gps-status"></div>
         </div>
         
-        <input type="hidden" id="gps-coords">
+        <input type="hidden" id="gps-hidden-value">
+        <input type="hidden" id="gps-activado" value="false">
     </div>
     
     <button id="btn-enviar" style="background:var(--brand); padding:20px; border-radius:15px; border:none; font-weight:900; cursor:pointer; font-size:16px; margin-top:10px;" onclick="enviarPedido()">PEDIR POR WHATSAPP 🚀</button>
 </div>
+
+
+<style>
+</style>
 
 <script>
 const SHEET_ID = '12KJLmF_Xvg0QficA4Zx3g7l0dYNEwd0O_PFcG8TfTlI';
 const WHATSAPP = '573334311652';
 const URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
-let allItems = []; 
-let cart = {}; 
-let timers = {}; 
-let modoEntrega = 'Domicilio';
-let coordenadasGPS = null; // 🔥 Variable para almacenar coordenadas
+// Configuración de domicilios (ajusta las coordenadas de tu restaurante)
+const DIRECCION_BASE = {
+    lat: 10.962536,  // Latitud de J&M Fast Food
+    lng: -74.814391  // Longitud de J&M Fast Food
+};
+
+const TARIFA_BASE = 3000;           // Tarifa mínima de domicilio
+const TARIFA_POR_KM = 1000;        // Costo por kilómetro adicional
+const DISTANCIA_GRATIS = 2;        // Primeros 2km con tarifa base
+const DISTANCIA_MAXIMA = 10;       // Máximo 10km de cobertura
+
+let allItems = []; let cart = {}; let timers = {}; let modoEntrega = 'Domicilio';
 
 // Generar color único para cada categoría
 function generarColorCategoria(texto) {
@@ -649,9 +624,10 @@ function generarColorCategoria(texto) {
         hash = texto.charCodeAt(i) + ((hash << 5) - hash);
     }
     
+    // Generar HSL con saturación y luminosidad controladas para colores suaves
     const h = Math.abs(hash % 360);
-    const s = 65 + (hash % 20);
-    const l = 50 + (hash % 15);
+    const s = 65 + (hash % 20); // 65-85% saturación
+    const l = 50 + (hash % 15); // 50-65% luminosidad
     
     return `hsl(${h}, ${s}%, ${l}%)`;
 }
@@ -664,15 +640,18 @@ function aplicarColoresCategoria() {
         const categoryName = section.id.replace('cat-', '');
         const color = generarColorCategoria(categoryName);
         
+        // Aplicar color al fondo de la sección
         section.style.setProperty('--category-color', color);
         section.querySelector('.category-title').style.color = color;
         
+        // Fondo degradado transparente
         section.style.background = `linear-gradient(180deg, 
             ${color}08 0%, 
             transparent 30%, 
             transparent 70%, 
             ${color}05 100%)`;
         
+        // Aplicar color a las tarjetas de esta categoría
         const items = section.querySelectorAll('.item');
         items.forEach(item => {
             item.style.setProperty('--category-color', color);
@@ -696,6 +675,7 @@ function detectarCategoriaVisible() {
             categoriaActual = section.id.replace('cat-', '');
             section.classList.add('active');
             
+            // Activar tab correspondiente
             tabs.forEach(tab => {
                 const tabText = tab.textContent.trim();
                 if (tabText === categoriaActual) {
@@ -707,6 +687,7 @@ function detectarCategoriaVisible() {
                 }
             });
             
+            // NUEVO: Cambiar color de fondo dinámicamente
             const color = generarColorCategoria(categoriaActual);
             const colorOpaco = color.replace('hsl', 'hsla').replace(')', ', 0.15)');
             bg.style.setProperty('--category-bg-color', colorOpaco);
@@ -738,6 +719,7 @@ function parsearLineaCSV(linea) {
 }
 
 async function loadData() {
+    // Mostrar indicador de carga
     document.getElementById('full-menu').innerHTML = 
         '<div style="text-align:center; padding:50px; color:var(--brand);">⌛ Cargando menú...</div>';
     
@@ -757,11 +739,13 @@ async function loadData() {
         }).filter(p => p.name);
         renderMenu();
         
+        // Aplicar colores a las categorías
         setTimeout(() => {
             aplicarColoresCategoria();
             detectarCategoriaVisible();
         }, 100);
         
+        // Detectar scroll para activar efectos de categoría
         window.addEventListener('scroll', detectarCategoriaVisible);
     } catch (e) { 
         console.error("Error cargando menú:", e);
@@ -822,6 +806,7 @@ function highlightTab(id) {
     if (activeTab) {
         activeTab.classList.add('active');
         
+        // Aplicar color de la categoría al tab activo
         const categoryName = id;
         const color = generarColorCategoria(categoryName);
         activeTab.style.setProperty('--category-color', color);
@@ -846,6 +831,7 @@ function expandBtn(name, price, cat) {
     
     if(!cart[name]) { 
         cart[name] = { price, qty: 1, cat, note: "" };
+        // Solo actualizar el botón específico en lugar de re-renderizar todo
         btn.classList.add('expanded');
         btn.innerHTML = `<button onclick="changeQty(event,'${name}',-1)">-</button><span id="val-${encodeURIComponent(name)}">${cart[name].qty}</span><button onclick="changeQty(event,'${name}',1)">+</button>`;
         updateCartUI(); 
@@ -856,6 +842,7 @@ function expandBtn(name, price, cat) {
 }
 
 function resetTimer(name) {
+    // Cerrar todos los demás botones expandidos
     document.querySelectorAll('.qty-btn.expanded').forEach(btn => {
         const btnName = btn.id.replace('qty-btn-', '');
         if(decodeURIComponent(btnName) !== name) {
@@ -876,7 +863,7 @@ function resetTimer(name) {
 function changeQty(e, name, delta) {
     if(e) e.stopPropagation();
     
-    if(!cart[name]) return;
+    if(!cart[name]) return; // Seguridad extra
     
     cart[name].qty += delta;
     const btnId = `qty-btn-${encodeURIComponent(name)}`;
@@ -884,6 +871,7 @@ function changeQty(e, name, delta) {
     
     if(cart[name].qty <= 0) { 
         delete cart[name];
+        // Solo actualizar este botón específico
         if(btn) {
             btn.classList.remove('expanded');
             btn.innerHTML = '<span>+</span>';
@@ -958,91 +946,63 @@ function setEntrega(t) {
     showForm();
 }
 
-function cerrarForm() { 
-    document.getElementById('form-modal').style.display = 'none'; 
-}
+function cerrarForm() { document.getElementById('form-modal').style.display = 'none'; }
 
-// 🔥 FUNCIÓN GPS MEJORADA - SOLO CAPTURA COORDENADAS, NO MODIFICA DIRECCIÓN
-function obtenerUbicacionGPS() {
+function obtenerUbicacion() {
     const btn = document.getElementById('gps-trigger');
-    const statusDiv = document.getElementById('gps-status');
-    const coordsInput = document.getElementById('gps-coords');
+    const hidden = document.getElementById('gps-hidden-value');
+    const gpsActivado = document.getElementById('gps-activado');
+    const gpsIcon = document.getElementById('gps-icon');
+    const gpsText = document.getElementById('gps-text');
     
     if (!navigator.geolocation) {
-        statusDiv.textContent = "❌ GPS no disponible en tu dispositivo";
-        statusDiv.style.color = "#ff4444";
-        statusDiv.classList.add('active');
+        alert("GPS no disponible en tu navegador");
         return;
     }
     
-    // Estado de carga
-    btn.classList.add('loading');
-    btn.innerHTML = '<span>⌛</span><span>Detectando ubicación...</span>';
+    // Cambiar estado del botón
     btn.disabled = true;
-    statusDiv.textContent = "Esperando señal GPS...";
-    statusDiv.style.color = "#ffc107";
-    statusDiv.classList.add('active');
+    gpsIcon.textContent = "⌛";
+    gpsText.textContent = "DETECTANDO...";
     
     navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
+        (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
             
-            // Guardar coordenadas para envío por WhatsApp
-            coordenadasGPS = { lat, lng };
-            coordsInput.value = `${lat},${lng}`;
+            // Guardar coordenadas GPS (solo coordenadas, NO dirección)
+            hidden.value = `https://www.google.com/maps?q=${lat},${lng}`;
+            gpsActivado.value = "true";
             
-            // Feedback exitoso
-            btn.classList.remove('loading');
-            btn.classList.add('success');
-            btn.innerHTML = '<span>✓</span><span>Ubicación Compartida</span>';
+            // Activar botón en verde
+            btn.classList.add('activo');
+            gpsIcon.textContent = "✅";
+            gpsText.textContent = "UBICACIÓN AGREGADA";
             btn.disabled = false;
             
-            statusDiv.textContent = `✓ GPS capturado: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            statusDiv.style.color = "#4caf50";
-            
-            // Restaurar botón después de 3 segundos
+            // Mensaje sutil de confirmación
             setTimeout(() => {
-                btn.classList.remove('success');
-                btn.innerHTML = '<span>📍</span><span>Actualizar Ubicación GPS</span>';
-            }, 3000);
+                gpsIcon.textContent = "📍";
+                gpsText.textContent = "UBICACIÓN GPS ACTIVADA";
+            }, 2000);
         },
-        (error) => {
-            btn.classList.remove('loading');
-            btn.innerHTML = '<span>📍</span><span>Compartir Mi Ubicación GPS</span>';
+        (error) => { 
             btn.disabled = false;
-            
-            let errorMsg = "❌ Error al obtener ubicación";
-            
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    errorMsg = "❌ Permiso de ubicación denegado. Actívalo en configuración.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    errorMsg = "❌ Ubicación no disponible. Verifica tu GPS.";
-                    break;
-                case error.TIMEOUT:
-                    errorMsg = "❌ Tiempo de espera agotado. Intenta de nuevo.";
-                    break;
-            }
-            
-            statusDiv.textContent = errorMsg;
-            statusDiv.style.color = "#ff4444";
-            statusDiv.classList.add('active');
+            gpsIcon.textContent = "📍";
+            gpsText.textContent = "AGREGAR MI UBICACIÓN GPS";
+            alert("No se pudo obtener la ubicación. Verifica los permisos GPS."); 
         },
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
-        }
+        { enableHighAccuracy: true, timeout: 10000 }
     );
 }
 
 function enviarPedido() {
     const btn = document.getElementById('btn-enviar');
     
+    // Evitar doble envío
     if(btn.disabled) return;
     
+    // Verificar que el carrito no esté vacío
     if(Object.keys(cart).length === 0) {
         alert("Tu carrito está vacío");
         return;
@@ -1051,23 +1011,46 @@ function enviarPedido() {
     const cli = document.getElementById('cliente');
     const tel = document.getElementById('telefono');
     const dirCompleta = document.getElementById('direccion-completa');
+    const gpsLink = document.getElementById('gps-hidden-value').value;
     const pago = document.getElementById('tipoPago');
     let error = false;
 
+    // Limpiar errores previos
+    [cli, tel, dirCompleta].forEach(input => {
+        if(input) input.classList.remove('required-error');
+    });
+
+    // Validar campos obligatorios con mejor feedback visual
     [cli, tel, (modoEntrega === 'Domicilio' ? dirCompleta : null)].forEach(input => {
         if (input && !input.value.trim()) {
             input.classList.add('required-error');
-            setTimeout(() => input.classList.remove('required-error'), 2000);
+            input.style.borderColor = '#ff4444';
+            input.style.borderWidth = '2px';
+            setTimeout(() => {
+                input.classList.remove('required-error');
+                input.style.borderColor = '';
+                input.style.borderWidth = '';
+            }, 3000);
             error = true;
         }
     });
 
-    if(error) return alert("Por favor completa los campos obligatorios (*)");
+    if(error) {
+        alert("⚠️ Por favor completa todos los campos marcados en rojo");
+        return;
+    }
     
+    // Validar teléfono
     if(tel.value.trim().length < 10) {
-        alert("Por favor ingresa un número de teléfono válido (mínimo 10 dígitos)");
+        alert("📱 Por favor ingresa un número de teléfono válido (mínimo 10 dígitos)");
         tel.classList.add('required-error');
-        setTimeout(() => tel.classList.remove('required-error'), 2000);
+        tel.style.borderColor = '#ff4444';
+        tel.style.borderWidth = '2px';
+        setTimeout(() => {
+            tel.classList.remove('required-error');
+            tel.style.borderColor = '';
+            tel.style.borderWidth = '';
+        }, 3000);
         return;
     }
 
@@ -1085,18 +1068,10 @@ function enviarPedido() {
     t += `👤 *Cliente:* ${cli.value.trim()}\n`;
     t += `📱 *Tel:* ${tel.value.trim()}\n`;
     t += `🛵 *Entrega:* ${modoEntrega}\n`;
-    
     if(modoEntrega==='Domicilio') {
         t += `📍 *Dir:* ${dirCompleta.value.trim()}\n`;
-        
-        // 🔥 AGREGAR COORDENADAS GPS SI ESTÁN DISPONIBLES
-        if(coordenadasGPS) {
-            const linkMaps = `https://www.google.com/maps?q=${coordenadasGPS.lat},${coordenadasGPS.lng}`;
-            t += `🗺️ *GPS:* ${linkMaps}\n`;
-            t += `📌 *Coords:* ${coordenadasGPS.lat.toFixed(6)}, ${coordenadasGPS.lng.toFixed(6)}\n`;
-        }
+        if(gpsLink) t += `🗺️ *GPS:* ${gpsLink}\n`;
     }
-    
     t += `💳 *Pago:* ${pago.value}\n\n`;
     t += `🛒 *DETALLE DEL PEDIDO:*\n`;
 
@@ -1111,42 +1086,66 @@ function enviarPedido() {
     t += `\n━━━━━━━━━━━━━━━━\n`;
     t += `💰 *TOTAL: $${totalPedido.toLocaleString('es-CO')}*`;
 
+    // Deshabilitar botón temporalmente
     btn.disabled = true;
     btn.innerHTML = "PREPARANDO...";
 
-    mostrarConfirmacionEnvio(t, totalPedido);
+    // En lugar de abrir WhatsApp directamente, mostrar confirmación
+    mostrarConfirmacionEnvio(t, totalPedido, modoEntrega);
     
+    // Rehabilitar botón después de 2 segundos
     setTimeout(() => {
         btn.disabled = false;
         btn.innerHTML = "PEDIR POR WHATSAPP 🚀";
     }, 2000);
 }
 
-function mostrarConfirmacionEnvio(mensaje, total) {
+function mostrarConfirmacionEnvio(mensaje, total, tipoEntrega) {
+    const esDomicilio = tipoEntrega === 'Domicilio';
     const modal = document.createElement('div');
     modal.innerHTML = `
         <div style="position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:3000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px); animation:fadeIn 0.3s;">
-            <div style="background:linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); padding:30px; border-radius:25px; max-width:400px; width:90%; border:2px solid var(--brand); box-shadow:0 20px 60px rgba(244,180,0,0.3); animation:slideUp 0.4s;">
+            <div style="background:linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); padding:30px; border-radius:25px; max-width:420px; width:90%; border:2px solid var(--brand); box-shadow:0 20px 60px rgba(244,180,0,0.3); animation:slideUp 0.4s;">
                 
                 <div style="text-align:center; margin-bottom:25px;">
                     <div style="width:80px; height:80px; background:var(--brand); border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:40px; animation:pulse 1s infinite;">
                         ✓
                     </div>
-                    <h3 style="color:var(--brand); margin:0 0 8px 0; font-size:22px;">¡Pedido Listo!</h3>
-                    <p style="color:#aaa; margin:0; font-size:14px;">Total: <span style="color:#fff; font-weight:900; font-size:18px;">$${total.toLocaleString('es-CO')}</span></p>
+                    <h3 style="color:var(--brand); margin:0 0 8px 0; font-size:22px; font-weight:900;">¡Pedido Listo!</h3>
+                    <p style="color:#aaa; margin:0; font-size:14px;">
+                        ${esDomicilio ? '<b style="color:#4caf50;">SUBTOTAL PRODUCTOS:</b>' : '<b>TOTAL:</b>'} 
+                        <span style="color:#fff; font-weight:900; font-size:20px;">$${total.toLocaleString('es-CO')}</span>
+                    </p>
                 </div>
+
+                ${esDomicilio ? `
+                <div style="background:linear-gradient(135deg, rgba(76,175,80,0.12) 0%, rgba(76,175,80,0.05) 100%); border:1px solid rgba(76,175,80,0.3); border-radius:15px; padding:16px; margin-bottom:20px;">
+                    <div style="display:flex; align-items:start; gap:12px;">
+                        <div style="font-size:24px; line-height:1;">🛵</div>
+                        <div style="flex:1;">
+                            <p style="margin:0 0 8px 0; color:#4caf50; font-size:13px; font-weight:900; line-height:1.4;">
+                                COSTO DE DOMICILIO
+                            </p>
+                            <p style="margin:0; color:#ccc; font-size:12px; line-height:1.5;">
+                                Nuestro asesor te indicará el valor del domicilio según tu ubicación antes de confirmar el pago. 
+                                <b style="color:#fff;">El total final incluirá productos + envío.</b>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
 
                 <div style="background:rgba(255,255,255,0.03); border-radius:15px; padding:15px; margin-bottom:20px; border:1px solid #333;">
                     <p style="margin:0; color:#ccc; font-size:13px; text-align:center; line-height:1.6;">
-                        Te vamos a redirigir a <b style="color:var(--brand);">WhatsApp</b> para confirmar tu pedido
+                        Te vamos a redirigir a <b style="color:var(--brand);">WhatsApp</b> para confirmar tu pedido con nuestro equipo
                     </p>
                 </div>
 
                 <div style="display:flex; gap:10px;">
-                    <button onclick="cerrarConfirmacion()" style="flex:1; background:#333; border:none; padding:15px; border-radius:12px; color:#fff; font-weight:700; cursor:pointer; font-size:14px;">
+                    <button onclick="cerrarConfirmacion()" style="flex:1; background:#333; border:none; padding:15px; border-radius:12px; color:#fff; font-weight:700; cursor:pointer; font-size:14px; transition:all 0.3s;">
                         Cancelar
                     </button>
-                    <button onclick="abrirWhatsApp(\`${mensaje.replace(/`/g, '\\`')}\`)" style="flex:2; background:var(--brand); border:none; padding:15px; border-radius:12px; color:#000; font-weight:900; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <button onclick="abrirWhatsApp(\`${mensaje.replace(/`/g, '\\`')}\`)" style="flex:2; background:var(--brand); border:none; padding:15px; border-radius:12px; color:#000; font-weight:900; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.3s;">
                         <span>Abrir WhatsApp</span>
                         <span style="font-size:18px;">💬</span>
                     </button>
@@ -1171,6 +1170,7 @@ function cerrarConfirmacion() {
 function abrirWhatsApp(mensaje) {
     window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP}&text=${encodeURIComponent(mensaje)}`, '_blank');
     
+    // Limpiar carrito y cerrar modales
     Object.keys(cart).forEach(nombre => {
         const btnId = `qty-btn-${encodeURIComponent(nombre)}`;
         const botonProducto = document.getElementById(btnId);
@@ -1181,7 +1181,6 @@ function abrirWhatsApp(mensaje) {
     });
     
     cart = {};
-    coordenadasGPS = null; // 🔥 Limpiar coordenadas
     updateCartUI();
     cerrarForm();
     cerrarConfirmacion();
@@ -1189,6 +1188,7 @@ function abrirWhatsApp(mensaje) {
 
 loadData();
 
+// Header scroll behavior
 const header = document.getElementById('main-header');
 const heroSection = document.querySelector('.hero');
 window.addEventListener('scroll', () => {
@@ -1199,6 +1199,8 @@ window.addEventListener('scroll', () => {
     }
 });
 </script>
+
+
 
 </body>
 </html>
