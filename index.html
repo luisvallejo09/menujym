@@ -3,6 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
+    <meta name="theme-color" content="#f4b400"/>
+    <meta name="description" content="J&M Fast Food - Las hamburguesas que te hacen volver. Pedidos online con envío a domicilio."/>
+    <link rel="manifest" href="manifest.json"/>
+    <link rel="apple-touch-icon" href="https://i.ibb.co/tTKrch7P/Whats-App-Image-2026-01-31-at-4-04-56-PM.jpg"/>
     <title>J&M Fast Food | Oficial 🔥</title>
 
     <style>
@@ -208,40 +212,48 @@
             opacity: 0.6;
         }
 
-        /* Promo banner */
-        .promo-banner {
-            background: linear-gradient(90deg, #ff6b35, #f4b400, #ff6b35);
-            background-size: 200% 100%;
-            animation: promoShine 3s linear infinite;
-            padding: 10px 20px;
-            text-align: center;
-            font-weight: 800;
-            font-size: 13px;
+        /* Promo banner removido para mejor UX sticky */
+
+        /* BOTÓN INSTALAR APP (PWA) */
+        .install-btn {
+            position: fixed;
+            top: 70px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--brand) 0%, #ff6b35 100%);
             color: #000;
-            position: sticky;
-            top: 60px;
-            left: 0;
-            right: 0;
-            width: 100%;
-            max-width: 100vw;
-            z-index: 1150;
-            transform: translateZ(0);
-            will-change: transform;
-            box-sizing: border-box;
-            overflow: hidden;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            z-index: 1250;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(244,180,0,0.4);
+            animation: pulseInstall 2s infinite;
+            transition: all 0.3s ease;
         }
-        @keyframes promoShine {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
+        .install-btn.show {
+            display: flex;
+        }
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244,180,0,0.6);
+        }
+        @keyframes pulseInstall {
+            0%, 100% { box-shadow: 0 4px 15px rgba(244,180,0,0.4); }
+            50% { box-shadow: 0 4px 25px rgba(244,180,0,0.7); }
         }
 
         .menu-wrapper { padding-top: 20px; }
 
         .tabs {
             display: flex; gap: 10px; overflow-x: auto; padding: 12px 15px;
-            background: rgba(0,0,0,0.95); 
+            background: rgba(0,0,0,0.98); 
             position: sticky; 
-            top: 100px;
+            top: 60px;
             left: 0;
             right: 0;
             width: 100%; 
@@ -250,8 +262,8 @@
             scrollbar-width: none; 
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
-            transform: translateZ(0);
-            will-change: transform;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(244,180,0,0.1);
             box-sizing: border-box;
         }
         .tabs::-webkit-scrollbar { display: none; }
@@ -510,6 +522,32 @@
             box-shadow: 0 4px 12px rgba(76,175,80,0.4);
         }
 
+        /* Estilos para botones de cambio */
+        .btn-cambio {
+            flex: 1;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            color: #888;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-cambio:hover {
+            border-color: rgba(244,180,0,0.5);
+            background: rgba(244,180,0,0.05);
+        }
+        .btn-cambio.activo {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #000;
+            font-weight: 900;
+            box-shadow: 0 4px 12px rgba(244,180,0,0.3);
+        }
+
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
         
         /* CORRECCIÓN CRÍTICA PARA PREVENIR DESBORDAMIENTO HORIZONTAL */
@@ -552,11 +590,11 @@
         <img src="https://i.ibb.co/tTKrch7P/Whats-App-Image-2026-01-31-at-4-04-56-PM.jpg" alt="J&M Fast Food Logo">
     </div>
     <h2 class="hero-title">J&M FAST FOOD</h2>
-    <p class="hero-tagline">Las hamburguesas que te hacen volver</p>
+    <p class="hero-tagline">Sabor que enamora desde el primer mordisco</p>
     <div class="hero-badges">
-        <span class="hero-badge">DOMICILIOS</span>
-        <span class="hero-badge">INGREDIENTES FRESCOS</span>
-        <span class="hero-badge">PAGO EFECTIVO/NEQUI</span>
+        <span class="hero-badge">ENVÍO GRATIS +$30.000</span>
+        <span class="hero-badge">100% CARNE PREMIUM</span>
+        <span class="hero-badge">LISTO EN 30 MIN</span>
     </div>
     <button class="hero-cta" onclick="document.getElementById('full-menu').scrollIntoView({behavior:'smooth'})">
         VER MENU COMPLETO
@@ -567,9 +605,11 @@
     </div>
 </section>
 
-<div class="promo-banner">
-    PEDIDOS POR WHATSAPP - DOMICILIO Y RECOGER EN TIENDA
-</div>
+<!-- BOTÓN INSTALAR APP -->
+<button class="install-btn" id="install-btn" onclick="instalarApp()">
+    <span>📱</span>
+    <span>INSTALAR APP</span>
+</button>
 
 <div class="menu-wrapper">
     <div class="tabs" id="tab-bar"></div>
@@ -597,10 +637,33 @@
     <div id="resumen-lista" class="resumen-box"></div>
 
     <label style="color:var(--brand); font-size:12px; font-weight:700; margin-left:5px; display:block; margin-bottom:5px;">MÉTODO DE PAGO:</label>
-    <select id="tipoPago" class="input-field">
+    <select id="tipoPago" class="input-field" onchange="toggleCambioEfectivo()">
         <option value="Efectivo">💵 Efectivo</option>
         <option value="Transferencia (Nequi/Daviplata)">💳 Transferencia</option>
     </select>
+
+    <!-- Campo para cambio (solo visible si selecciona efectivo) -->
+    <div id="div-cambio-efectivo" style="margin-top:12px; display:block;">
+        <label style="color:var(--brand); font-size:12px; font-weight:700; margin-left:5px; display:block; margin-bottom:5px;">💰 ¿NECESITAS CAMBIO?</label>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button type="button" id="btn-no-cambio" class="btn-cambio activo" onclick="seleccionarCambio('no')">
+                ✓ No necesito
+            </button>
+            <button type="button" id="btn-si-cambio" class="btn-cambio" onclick="seleccionarCambio('si')">
+                Sí, con cuánto pago
+            </button>
+        </div>
+        <input 
+            type="number" 
+            id="monto-cambio" 
+            class="input-field" 
+            placeholder="Ej: 50000" 
+            style="display:none;"
+        >
+        <p id="mensaje-cambio" style="margin:8px 5px 0; font-size:11px; color:#4caf50; display:none;">
+            💡 El domiciliario llevará cambio para <span id="valor-pago-con"></span>
+        </p>
+    </div>
 
     <input type="text" id="cliente" class="input-field" placeholder="Nombre completo *">
     <input type="tel" id="telefono" class="input-field" placeholder="WhatsApp *">
@@ -988,6 +1051,58 @@ function setEntrega(t) {
 
 function cerrarForm() { document.getElementById('form-modal').style.display = 'none'; }
 
+// Funciones para manejo de cambio
+function toggleCambioEfectivo() {
+    const tipoPago = document.getElementById('tipoPago').value;
+    const divCambio = document.getElementById('div-cambio-efectivo');
+    
+    if(tipoPago === 'Efectivo') {
+        divCambio.style.display = 'block';
+    } else {
+        divCambio.style.display = 'none';
+    }
+}
+
+function seleccionarCambio(opcion) {
+    const btnNoCambio = document.getElementById('btn-no-cambio');
+    const btnSiCambio = document.getElementById('btn-si-cambio');
+    const montoCambio = document.getElementById('monto-cambio');
+    const mensajeCambio = document.getElementById('mensaje-cambio');
+    
+    if(opcion === 'no') {
+        btnNoCambio.classList.add('activo');
+        btnSiCambio.classList.remove('activo');
+        montoCambio.style.display = 'none';
+        mensajeCambio.style.display = 'none';
+        montoCambio.value = '';
+    } else {
+        btnNoCambio.classList.remove('activo');
+        btnSiCambio.classList.add('activo');
+        montoCambio.style.display = 'block';
+        
+        // Auto-focus en el input
+        setTimeout(() => montoCambio.focus(), 100);
+    }
+}
+
+// Actualizar mensaje cuando escribe el monto
+document.addEventListener('DOMContentLoaded', function() {
+    const montoCambio = document.getElementById('monto-cambio');
+    if(montoCambio) {
+        montoCambio.addEventListener('input', function() {
+            const mensajeCambio = document.getElementById('mensaje-cambio');
+            const valorPagoCon = document.getElementById('valor-pago-con');
+            
+            if(this.value && this.value > 0) {
+                valorPagoCon.textContent = '$' + parseInt(this.value).toLocaleString('es-CO');
+                mensajeCambio.style.display = 'block';
+            } else {
+                mensajeCambio.style.display = 'none';
+            }
+        });
+    }
+});
+
 function obtenerUbicacion() {
     const btn = document.getElementById('gps-trigger');
     const hidden = document.getElementById('gps-hidden-value');
@@ -1093,6 +1208,42 @@ function enviarPedido() {
         }, 3000);
         return;
     }
+    
+    // Validar cambio si es efectivo
+    if(pago.value === 'Efectivo') {
+        const btnSiCambio = document.getElementById('btn-si-cambio');
+        const montoCambio = document.getElementById('monto-cambio');
+        
+        if(btnSiCambio.classList.contains('activo')) {
+            if(!montoCambio.value || montoCambio.value <= 0) {
+                alert("💰 Por favor ingresa con cuánto vas a pagar");
+                montoCambio.style.borderColor = '#ff4444';
+                montoCambio.style.borderWidth = '2px';
+                setTimeout(() => {
+                    montoCambio.style.borderColor = '';
+                    montoCambio.style.borderWidth = '';
+                }, 3000);
+                return;
+            }
+            
+            // Calcular total del pedido temporalmente para validar
+            let totalTemp = 0;
+            Object.keys(cart).forEach(n => {
+                totalTemp += (cart[n].price * cart[n].qty);
+            });
+            
+            if(parseInt(montoCambio.value) < totalTemp) {
+                alert("💰 El monto con el que vas a pagar debe ser mayor o igual al total del pedido ($" + totalTemp.toLocaleString('es-CO') + ")");
+                montoCambio.style.borderColor = '#ff4444';
+                montoCambio.style.borderWidth = '2px';
+                setTimeout(() => {
+                    montoCambio.style.borderColor = '';
+                    montoCambio.style.borderWidth = '';
+                }, 3000);
+                return;
+            }
+        }
+    }
 
     let totalPedido = 0;
     const grupos = {};
@@ -1112,8 +1263,24 @@ function enviarPedido() {
         t += `📍 *Dir:* ${dirCompleta.value.trim()}\n`;
         if(gpsLink) t += `🗺️ *GPS:* ${gpsLink}\n`;
     }
-    t += `💳 *Pago:* ${pago.value}\n\n`;
-    t += `🛒 *DETALLE DEL PEDIDO:*\n`;
+    t += `💳 *Pago:* ${pago.value}\n`;
+    
+    // Agregar información de cambio si seleccionó efectivo
+    if(pago.value === 'Efectivo') {
+        const montoCambio = document.getElementById('monto-cambio');
+        const btnSiCambio = document.getElementById('btn-si-cambio');
+        
+        if(btnSiCambio.classList.contains('activo') && montoCambio.value) {
+            const valorCambio = parseInt(montoCambio.value);
+            const vuelto = valorCambio - totalPedido;
+            t += `💵 *Paga con:* $${valorCambio.toLocaleString('es-CO')}\n`;
+            t += `💰 *Cambio:* $${vuelto.toLocaleString('es-CO')}\n`;
+        } else {
+            t += `✅ *No requiere cambio*\n`;
+        }
+    }
+    
+    t += `\n🛒 *DETALLE DEL PEDIDO:*\n`;
 
     Object.keys(grupos).forEach(cat => {
         t += `\n*${cat.toUpperCase()}* ━━━━━━━━\n`;
@@ -1238,6 +1405,71 @@ window.addEventListener('scroll', () => {
         header.classList.remove('scrolled');
     }
 });
+
+// ============================================
+// FUNCIONALIDAD PWA - INSTALAR COMO APP
+// ============================================
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+
+// Detectar si la app ya está instalada
+function isAppInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+}
+
+// Escuchar el evento beforeinstallprompt
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevenir que Chrome muestre su banner automático
+    e.preventDefault();
+    // Guardar el evento para usarlo después
+    deferredPrompt = e;
+    
+    // Mostrar el botón de instalación si no está instalada
+    if (!isAppInstalled()) {
+        installBtn.classList.add('show');
+    }
+});
+
+// Función para instalar la app
+function instalarApp() {
+    if (!deferredPrompt) {
+        alert('Para instalar esta app:\n\n📱 En Chrome/Edge: Menú > "Instalar aplicación"\n🍎 En Safari iOS: Compartir > "Añadir a pantalla de inicio"');
+        return;
+    }
+    
+    // Mostrar el prompt de instalación
+    deferredPrompt.prompt();
+    
+    // Esperar la respuesta del usuario
+    deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('Usuario aceptó la instalación');
+            installBtn.classList.remove('show');
+        } else {
+            console.log('Usuario rechazó la instalación');
+        }
+        deferredPrompt = null;
+    });
+}
+
+// Ocultar botón si ya está instalada
+if (isAppInstalled()) {
+    installBtn.style.display = 'none';
+}
+
+// Registro del Service Worker (para PWA)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('Service Worker registrado:', registration);
+            })
+            .catch(error => {
+                console.log('Error al registrar Service Worker:', error);
+            });
+    });
+}
 </script>
 
 
