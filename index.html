@@ -3,8 +3,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
+    <meta name="theme-color" content="#080808">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Dubai Fast Food | El secreto del sabor 🔥</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"></noscript>
 
     <style>
         :root {
@@ -20,7 +26,7 @@
             --radius: 18px;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             background: var(--bg);
@@ -60,11 +66,11 @@
             display: flex; align-items: flex-end; justify-content: center;
         }
         .smoke-puff {
-            position: absolute;
-            border-radius: 50%;
+            position: absolute; border-radius: 50%;
             background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, rgba(180,130,60,0.03) 40%, transparent 70%);
             animation: smokeDrift linear infinite;
             filter: blur(18px);
+            will-change: transform, opacity;
         }
         @keyframes smokeDrift {
             0%   { transform: translateY(0) translateX(0) scale(0.4); opacity: 0; }
@@ -72,18 +78,36 @@
             50%  { transform: translateY(-45vh) translateX(var(--dx)) scale(1.4); opacity: 0.5; }
             100% { transform: translateY(-100vh) translateX(calc(var(--dx)*1.8)) scale(2.2); opacity: 0; }
         }
-        /* Brasas / chispas pequeñas */
         .ember {
             position: absolute; border-radius: 50%;
             background: var(--brand);
             animation: emberRise linear infinite;
-            opacity: 0;
+            opacity: 0; will-change: transform, opacity;
         }
         @keyframes emberRise {
             0%   { transform: translateY(0) translateX(0); opacity: 0; }
             10%  { opacity: 0.9; }
             80%  { opacity: 0.2; }
             100% { transform: translateY(-70vh) translateX(var(--ex)); opacity: 0; }
+        }
+        /* Gama baja: sin animaciones pesadas */
+        .perf-low .smoke-puff, .perf-low .ember { display: none !important; }
+        .perf-low .bg-pattern { display: none !important; }
+        .perf-low .bg-vignette { display: none !important; }
+        .perf-low header,
+        .perf-low .tabs-wrap,
+        .perf-low .bottom-nav,
+        .perf-low .overlay,
+        .perf-low #pizza-modal { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        .perf-low header { background: #0a0a0a !important; }
+        .perf-low .tabs-wrap { background: #0a0a0a !important; }
+        .perf-low .bottom-nav { background: #060606 !important; }
+        .perf-low .item:hover { transform: none !important; }
+        .perf-low .fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
+        .perf-low .item-img-cont img { transition: none !important; }
+        @media (prefers-reduced-motion: reduce) {
+            .smoke-puff, .ember { display: none !important; }
+            .fade-up { animation: none !important; opacity: 1 !important; transform: none !important; }
         }
 
         /* ── HEADER ── */
@@ -92,8 +116,9 @@
             height: 72px;
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
-            background: rgba(8,8,8,0.9);
+            background: rgba(8,8,8,0.95);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(244,180,0,0.15);
         }
         .header-left { display: flex; align-items: center; gap: 12px; }
@@ -106,8 +131,8 @@
             animation: logoPulse 3s ease-in-out infinite;
         }
         @keyframes logoPulse {
-            0%,100% { box-shadow: 0 0 20px rgba(244,180,0,0.4); }
-            50%      { box-shadow: 0 0 35px rgba(244,180,0,0.7); }
+            0%,100% { opacity: 1; }
+            50%      { opacity: 0.85; }
         }
         .logo-ring img { width: 100%; height: 100%; object-fit: cover; }
         .brand-name {
@@ -152,6 +177,7 @@
             font-weight: 700; font-size: 13px;
             white-space: nowrap; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
         }
         .tabs button.active {
             background: var(--brand); color: #000; border-color: var(--brand);
@@ -329,6 +355,7 @@
             border: 1px solid #1e1e1e;
             transition: transform 0.25s ease, border-color 0.25s ease;
             position: relative;
+            contain: layout style;
         }
         .item:hover { transform: translateY(-3px); border-color: rgba(244,180,0,0.2); }
         .item.in-cart { border-color: rgba(244,180,0,0.4); }
@@ -415,15 +442,29 @@
         /* ── MODAL PEDIDO ── */
         #form-modal {
             position: fixed; inset: 0; z-index: 2000;
-            background: rgba(0,0,0,0.97);
-            backdrop-filter: blur(25px);
+            background: #080808;
             display: none; flex-direction: column;
-            overflow-y: auto; padding: 0;
+            overflow: hidden;
         }
         .modal-inner {
-            max-width: 520px; margin: auto; width: 100%;
-            padding: 24px 20px 40px;
-            min-height: 100vh; display: flex; flex-direction: column;
+            max-width: 520px; margin: 0 auto; width: 100%;
+            display: flex; flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .modal-header {
+            flex-shrink: 0;
+            padding: 20px 20px 0;
+        }
+        .modal-body {
+            flex: 1; overflow-y: auto; padding: 16px 20px 8px;
+            min-height: 0;
+        }
+        .modal-footer {
+            flex-shrink: 0;
+            padding: 12px 20px 20px;
+            background: #080808;
+            border-top: 1px solid #1a1a1a;
         }
         .modal-top {
             display: flex; align-items: center; justify-content: space-between;
@@ -503,6 +544,15 @@
         }
         .btn-gps.success { background: #0a2a12; border-color: var(--green); color: var(--green); }
 
+        /* Autosave badge */
+        .autosave-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 10px; color: var(--green); font-weight: 700;
+            letter-spacing: 0.5px; margin-left: 8px; opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .autosave-badge.show { opacity: 1; }
+
         /* Nota envío */
         .nota-envio {
             background: var(--brand-dim); border: 1px solid rgba(244,180,0,0.2);
@@ -524,7 +574,7 @@
             border: none; cursor: pointer; width: 100%;
             padding: 18px; border-radius: 16px;
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px; letter-spacing: 2px; margin-top: 14px;
+            font-size: 20px; letter-spacing: 2px;
             display: flex; align-items: center; justify-content: center; gap: 10px;
             transition: all 0.25s ease;
             box-shadow: 0 6px 25px rgba(244,180,0,0.35);
@@ -1064,7 +1114,7 @@
 
 <!-- Header -->
 <header>
-    <div class="header-left">
+    <div class="header-left" onclick="goHome()" style="cursor:pointer;">
         <div class="logo-ring">
             <img src="logo.jpg" alt="Logo">
         </div>
@@ -1116,43 +1166,65 @@
 <!-- Modal confirmación -->
 <div id="form-modal">
     <div class="modal-inner">
-        <div class="modal-top">
-            <div class="modal-title">Confirmar Pedido</div>
-            <button class="btn-close" onclick="cerrarForm()">✕</button>
-        </div>
 
-        <div class="entrega-btns">
-            <button id="btn-domicilio" class="entrega-btn active" onclick="setEntrega('Domicilio')">🛵 Domicilio</button>
-            <button id="btn-tienda"   class="entrega-btn"        onclick="setEntrega('Tienda')">🏪 Recoger en tienda</button>
-        </div>
-
-        <div id="resumen-lista" class="resumen-box"></div>
-
-        <label class="field-label">Método de pago</label>
-        <select id="tipoPago" class="input-field">
-            <option value="Efectivo">💵 Efectivo</option>
-            <option value="Transferencia (Nequi/Daviplata)">💳 Nequi / Daviplata</option>
-        </select>
-
-        <label class="field-label">Nombre completo *</label>
-        <input type="text" id="cliente" class="input-field" placeholder="¿A nombre de quién?">
-
-        <label class="field-label">WhatsApp *</label>
-        <input type="tel" id="telefono" class="input-field" placeholder="Número de contacto">
-
-        <div id="div-domicilio">
-            <label class="field-label">Dirección y Barrio *</label>
-            <input type="text" id="direccion" class="input-field" placeholder="Calle, barrio...">
-            <div class="gps-box">
-                <p>📍 <strong>¿Estás en el lugar de entrega?</strong><br>Comparte tu ubicación exacta por GPS.</p>
-                <button type="button" class="btn-gps" id="gps-trigger" onclick="obtenerUbicacion()">📡 OBTENER UBICACIÓN GPS</button>
-                <input type="hidden" id="gps-hidden-value">
+        <!-- HEADER fijo -->
+        <div class="modal-header">
+            <div class="modal-top">
+                <div class="modal-title">Confirmar Pedido</div>
+                <button class="btn-close" onclick="cerrarForm()">✕</button>
+            </div>
+            <div class="entrega-btns">
+                <button id="btn-domicilio" class="entrega-btn active" onclick="setEntrega('Domicilio')">🛵 Domicilio</button>
+                <button id="btn-tienda"   class="entrega-btn"        onclick="setEntrega('Tienda')">🏪 Recoger en tienda</button>
             </div>
         </div>
 
-        <button class="btn-send" onclick="enviarPedido()">
-            <span>PEDIR POR WHATSAPP</span> <span>🚀</span>
-        </button>
+        <!-- CUERPO scrollable -->
+        <div class="modal-body">
+            <div id="resumen-lista" class="resumen-box"></div>
+
+            <label class="field-label">Método de pago</label>
+            <select id="tipoPago" class="input-field">
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Transferencia (Nequi/Daviplata)">💳 Nequi / Daviplata</option>
+            </select>
+
+            <label class="field-label">
+                Nombre completo *
+                <span class="autosave-badge" id="badge-cliente">✓ Guardado</span>
+            </label>
+            <input type="text" id="cliente" class="input-field" placeholder="¿A nombre de quién?"
+                oninput="autoSave('cliente', this.value)">
+
+            <label class="field-label">
+                WhatsApp *
+                <span class="autosave-badge" id="badge-telefono">✓ Guardado</span>
+            </label>
+            <input type="tel" id="telefono" class="input-field" placeholder="Número de contacto"
+                oninput="autoSave('telefono', this.value)">
+
+            <div id="div-domicilio">
+                <label class="field-label">
+                    Dirección y Barrio *
+                    <span class="autosave-badge" id="badge-direccion">✓ Guardado</span>
+                </label>
+                <input type="text" id="direccion" class="input-field" placeholder="Calle, barrio..."
+                    oninput="autoSave('direccion', this.value)">
+                <div class="gps-box">
+                    <p>📍 <strong>¿Estás en el lugar de entrega?</strong><br>Comparte tu ubicación exacta por GPS.</p>
+                    <button type="button" class="btn-gps" id="gps-trigger" onclick="obtenerUbicacion()">📡 OBTENER UBICACIÓN GPS</button>
+                    <input type="hidden" id="gps-hidden-value">
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER fijo con botón siempre visible -->
+        <div class="modal-footer">
+            <button class="btn-send" onclick="enviarPedido()">
+                <span>PEDIR POR WHATSAPP</span> <span>🚀</span>
+            </button>
+        </div>
+
     </div>
 </div>
 
@@ -1165,18 +1237,38 @@ const URL_PROMOS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?t
 let allItems = [], cart = {}, timers = {}, modoEntrega = 'Domicilio';
 let sliderIndex = 0, promos = [], sliderTimer = null;
 
+// ── DETECCIÓN DE RENDIMIENTO ──
+(function detectPerf() {
+    // Detectar gama baja: RAM baja, conexión lenta, o CPU lenta
+    const isLowEnd = (
+        (navigator.deviceMemory && navigator.deviceMemory <= 2) ||
+        (navigator.connection && ['slow-2g','2g','3g'].includes(navigator.connection.effectiveType)) ||
+        (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)
+    );
+    if (isLowEnd) {
+        document.documentElement.classList.add('perf-low');
+        console.log('Modo ahorro activado');
+    }
+    // Benchmark rápido: si el dispositivo tarda mucho en arrancar, activar modo ahorro
+    const t0 = performance.now();
+    let n = 0; for (let i = 0; i < 500000; i++) n += Math.sqrt(i);
+    if (performance.now() - t0 > 80) {
+        document.documentElement.classList.add('perf-low');
+    }
+})();
+
 // ── EFECTO HUMO Y BRASAS ──
 function initSmoke() {
     const layer = document.getElementById('sparks-layer');
     layer.innerHTML = '';
 
     // Columnas de humo distribuidas horizontalmente
-    const cols = 7;
+    const cols = 5;
     for (let c = 0; c < cols; c++) {
-        const xBase = (c / (cols - 1)) * 90 + 5; // 5% a 95%
+        const xBase = (c / (cols - 1)) * 90 + 5;
 
-        // 3 puffs por columna con tamaños y tiempos distintos
-        for (let p = 0; p < 3; p++) {
+        // 2 puffs por columna
+        for (let p = 0; p < 2; p++) {
             const puff = document.createElement('div');
             puff.className = 'smoke-puff';
             const size = 120 + Math.random() * 180;
@@ -1197,7 +1289,7 @@ function initSmoke() {
     }
 
     // Brasas pequeñas
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 10; i++) {
         const ember = document.createElement('div');
         ember.className = 'ember';
         const size = 1.5 + Math.random() * 2.5;
@@ -1216,7 +1308,7 @@ function initSmoke() {
         layer.appendChild(ember);
     }
 }
-initSmoke();
+if (!document.documentElement.classList.contains('perf-low')) initSmoke();
 
 // ── CSV PARSER ──
 function parseCSV(csv) {
@@ -1299,7 +1391,7 @@ function renderMenu() {
                     <div class="item${inC?' in-cart':''}">
                         <div class="item-img-cont">
                             ${p.img
-                                ? `<img src="${p.img}" loading="lazy">`
+                                ? `<img src="${p.img}" loading="lazy" decoding="async">`
                                 : `<span class="item-emoji">🍔</span>`}
                             <div class="qty-btn${inC?' expanded':''}" id="qty-btn-${id}"
                                 onclick="expandBtn('${p.name.replace(/'/g,"\\'")}',${p.price},'${c.replace(/'/g,"\\'")}')">
@@ -1398,7 +1490,6 @@ function addPromoToCart(name, price, cat, btn) {
         cart[name].qty++;
     }
     updateCartUI();
-    renderMenu();
 
     // Feedback visual en el botón
     btn.classList.add('added');
@@ -1443,13 +1534,20 @@ function highlightTab(id) {
         bar.scrollTo({ left: t.offsetLeft - bar.offsetWidth/2 + t.offsetWidth/2, behavior:'smooth' });
     }
 }
+let scrollTicking = false;
 window.addEventListener('scroll', () => {
-    let cur = '';
-    document.querySelectorAll('.category-section').forEach(s => {
-        if (pageYOffset >= s.offsetTop-150) cur = s.id.replace('cat-','');
-    });
-    if (cur) highlightTab(cur);
-});
+    if (!scrollTicking) {
+        requestAnimationFrame(() => {
+            let cur = '';
+            document.querySelectorAll('.category-section').forEach(s => {
+                if (pageYOffset >= s.offsetTop-150) cur = s.id.replace('cat-','');
+            });
+            if (cur) highlightTab(cur);
+            scrollTicking = false;
+        });
+        scrollTicking = true;
+    }
+}, { passive: true });
 
 // ── CARRITO ──
 function expandBtn(name, price, cat) {
@@ -1517,6 +1615,7 @@ function updateCartUI() {
 
 // ── MODAL ──
 function showForm() {
+    autoLoad();
     const grupos = {};
     let total = 0;
     Object.keys(cart).forEach(n => {
@@ -1561,6 +1660,40 @@ function setEntrega(t) {
     showForm();
 }
 function cerrarForm() { document.getElementById('form-modal').style.display='none'; }
+
+// ── AUTOGUARDADO ──
+const SAVE_KEYS = ['cliente', 'telefono', 'direccion'];
+
+function autoSave(field, value) {
+    try {
+        localStorage.setItem('dff_' + field, value);
+        const badge = document.getElementById('badge-' + field);
+        if (badge) {
+            badge.classList.add('show');
+            clearTimeout(badge._t);
+            badge._t = setTimeout(() => badge.classList.remove('show'), 2000);
+        }
+    } catch(e) {}
+}
+
+function autoLoad() {
+    try {
+        SAVE_KEYS.forEach(k => {
+            const val = localStorage.getItem('dff_' + k);
+            const el = document.getElementById(k);
+            if (val && el) {
+                el.value = val;
+                // Mostrar badge brevemente para indicar que se cargó
+                const badge = document.getElementById('badge-' + k);
+                if (badge) {
+                    badge.textContent = '✓ Datos guardados';
+                    badge.classList.add('show');
+                    setTimeout(() => badge.classList.remove('show'), 2500);
+                }
+            }
+        });
+    } catch(e) {}
+}
 
 // ── GPS ──
 function obtenerUbicacion() {
@@ -1621,7 +1754,10 @@ function enviarPedido() {
     });
     t+=`\n━━━━━━━━━━━━━━━━\n💰 *TOTAL: $${total.toLocaleString('es-CO')}*`;
 
-    cart={}; updateCartUI(); renderMenu(); cerrarForm();
+    cart={}; updateCartUI(); cerrarForm();
+    renderMenu();
+    // Re-inyectar pizzas después del renderMenu
+    if (pizzaItems.length) renderPizzaTab();
     window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP}&text=${encodeURIComponent(t)}`,'_blank');
 }
 
@@ -1695,7 +1831,7 @@ function doSearch(q) {
         return `
         <div class="search-item" onclick="handleSearchClick(${idx})">
             <div class="search-thumb">
-                ${p.img ? `<img src="${p.img}" loading="lazy">` : `<span style="font-size:22px">${emoji}</span>`}
+                ${p.img ? `<img src="${p.img}" loading="lazy" decoding="async">` : `<span style="font-size:22px">${emoji}</span>`}
             </div>
             <div style="flex:1;min-width:0;">
                 <div class="search-item-name">${p.name}</div>
@@ -1842,7 +1978,7 @@ function renderPizzaTab() {
             ${pizzaItems.map(p => `
             <div class="item pizza-card">
                 <div class="item-img-cont" onclick="openPizzaModal('${p.nombre.replace(/'/g,"\\'")}')">
-                    ${p.img ? `<img src="${p.img}" loading="lazy">` : '<span class="item-emoji">🍕</span>'}
+                    ${p.img ? `<img src="${p.img}" loading="lazy" decoding="async">` : '<span class="item-emoji">🍕</span>'}
                     
                 </div>
                 <div class="item-info">
