@@ -1453,24 +1453,50 @@ window.addEventListener('scroll', () => {
 
 // ── CARRITO ──
 function expandBtn(name, price, cat) {
-    if (!cart[name]) { cart[name]={price,qty:1,cat,note:''}; renderMenu(); updateCartUI(); }
-    const btn = document.getElementById(`qty-btn-${encodeURIComponent(name)}`);
-    if (btn) btn.classList.add('expanded');
+    const id = encodeURIComponent(name);
+    const btn = document.getElementById('qty-btn-' + id);
+    if (!cart[name]) {
+        cart[name] = { price, qty: 1, cat, note: '' };
+        updateCartUI();
+        // Actualizar el botón en el DOM sin re-renderizar todo
+        if (btn) {
+            btn.classList.add('expanded');
+            btn.innerHTML = `
+                <button class="q-btn" onclick="changeQty(event,'${name.replace(/'/g,"\'")}', -1)">−</button>
+                <span class="qty-val" id="val-${id}">1</span>
+                <button class="q-btn" onclick="changeQty(event,'${name.replace(/'/g,"\'")}', 1)">+</button>`;
+            const item = btn.closest('.item');
+            if (item) item.classList.add('in-cart');
+        }
+    } else {
+        if (btn) btn.classList.add('expanded');
+    }
     resetTimer(name);
 }
 function resetTimer(name) {
     if (timers[name]) clearTimeout(timers[name]);
     timers[name] = setTimeout(() => {
-        const btn = document.getElementById(`qty-btn-${encodeURIComponent(name)}`);
+        const btn = document.getElementById('qty-btn-' + encodeURIComponent(name));
         if (btn) btn.classList.remove('expanded');
     }, 2500);
 }
 function changeQty(e, name, delta) {
     if (e) e.stopPropagation();
+    if (!cart[name]) return;
     cart[name].qty += delta;
-    if (cart[name].qty <= 0) { delete cart[name]; renderMenu(); }
-    else {
-        const v = document.getElementById(`val-${encodeURIComponent(name)}`);
+    const id = encodeURIComponent(name);
+    const btn = document.getElementById('qty-btn-' + id);
+    if (cart[name].qty <= 0) {
+        delete cart[name];
+        // Restaurar botón a estado original sin re-renderizar
+        if (btn) {
+            btn.classList.remove('expanded');
+            btn.innerHTML = '<span style="font-size:20px">+</span>';
+            const item = btn.closest('.item');
+            if (item) item.classList.remove('in-cart');
+        }
+    } else {
+        const v = document.getElementById('val-' + id);
         if (v) v.innerText = cart[name].qty;
         resetTimer(name);
     }
