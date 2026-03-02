@@ -759,6 +759,26 @@
             margin-bottom: 10px; display: block;
         }
 
+        /* Card sabor seleccionado */
+        .sabor-selected-card {
+            background: #111; border: 1.5px solid var(--brand);
+            border-radius: 16px; padding: 16px;
+            display: flex; align-items: center; gap: 12px;
+            cursor: default;
+        }
+        .sabor-selected-card.empty {
+            border-color: #2a2a2a; cursor: pointer;
+            border-style: dashed;
+        }
+        .sabor-change-btn {
+            background: #1a1a1a; border: 1px solid #2a2a2a;
+            color: var(--muted); font-size: 12px; font-weight: 700;
+            padding: 7px 14px; border-radius: 20px; cursor: pointer;
+            white-space: nowrap; flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .sabor-change-btn:hover { border-color: var(--brand); color: var(--brand); }
+
         /* Nota */
         .pizza-nota {
             background: #0e0e0e; border: 1.5px solid #1e1e1e;
@@ -1594,11 +1614,15 @@ function closeDrawer() {
 
 // ── BÚSQUEDA ──
 function openSearch() {
+    const input = document.getElementById('search-input');
+    const box = document.getElementById('search-results');
+    input.value = '';
+    box.innerHTML = '';
+    window._searchResults = [];
     document.getElementById('search-panel').classList.add('open');
     document.getElementById('overlay').classList.add('visible');
-    setTimeout(() => document.getElementById('search-input').focus(), 300);
+    setTimeout(() => input.focus(), 300);
     setNavActive('nav-search');
-    doSearch('');
 }
 function closeSearch() {
     document.getElementById('search-panel').classList.remove('open');
@@ -1609,26 +1633,63 @@ function closeSearch() {
 }
 function doSearch(q) {
     const box = document.getElementById('search-results');
-    const term = q.toLowerCase().trim();
-    const results = term
-        ? allItems.filter(i => i.name.toLowerCase().includes(term) || i.desc.toLowerCase().includes(term) || i.cat.toLowerCase().includes(term))
-        : allItems.slice(0, 12);
+    const term = (q || '').toLowerCase().trim();
+
+    // Sin término: limpiar y no mostrar nada
+    if (!term) {
+        box.innerHTML = '';
+        window._searchResults = [];
+        return;
+    }
+
+    // Buscar en items normales
+    const menuResults = allItems
+        .filter(i => i.name.toLowerCase().includes(term) || i.desc.toLowerCase().includes(term) || i.cat.toLowerCase().includes(term))
+        .map(i => ({ type: 'menu', name: i.name, desc: i.desc, cat: i.cat, price: i.price, img: i.img }));
+
+    // Buscar en pizzas si existen
+    const pizzaResults = pizzaItems
+        .filter(p => p.nombre.toLowerCase().includes(term) || p.desc.toLowerCase().includes(term))
+        .map(p => ({ type: 'pizza', name: p.nombre, desc: p.desc, cat: 'Pizzas', price: p.personal, img: p.img }));
+
+    const results = [...menuResults, ...pizzaResults];
+
     if (!results.length) {
         box.innerHTML = '<div class="search-empty">Sin resultados para "' + q + '"</div>';
         return;
     }
-    box.innerHTML = results.map(p => `
-        <div class="search-item" onclick="selectSearchItem('${p.cat.replace(/'/g,"\'")}', '${p.name.replace(/'/g,"\'")}')">
+
+    // Guardar resultados en un array global para el onclick
+    window._searchResults = results;
+    box.innerHTML = results.map((p, idx) => {
+        const emoji = p.type === 'pizza' ? '🍕' : '🍔';
+        const priceLabel = p.type === 'pizza'
+            ? 'Desde $' + p.price.toLocaleString('es-CO')
+            : '$' + p.price.toLocaleString('es-CO');
+        return `
+        <div class="search-item" onclick="handleSearchClick(${idx})">
             <div class="search-thumb">
-                ${p.img ? `<img src="${p.img}" loading="lazy">` : '<span style="font-size:22px">🍔</span>'}
+                ${p.img ? `<img src="${p.img}" loading="lazy">` : `<span style="font-size:22px">${emoji}</span>`}
             </div>
-            <div>
+            <div style="flex:1;min-width:0;">
                 <div class="search-item-name">${p.name}</div>
                 <div class="search-item-cat">${p.cat}</div>
             </div>
-            <div class="search-item-price">$${p.price.toLocaleString('es-CO')}</div>
-        </div>`).join('');
+            <div class="search-item-price">${priceLabel}</div>
+        </div>`;
+    }).join('');
 }
+function handleSearchClick(idx) {
+    const p = window._searchResults && window._searchResults[idx];
+    if (!p) return;
+    if (p.type === 'pizza') {
+        closeSearch();
+        setTimeout(() => openPizzaModal(p.name), 200);
+    } else {
+        selectSearchItem(p.cat, p.name);
+    }
+}
+
 function selectSearchItem(cat, name) {
     closeSearch();
     setTimeout(() => {
@@ -1792,6 +1853,11 @@ function openPizzaModal(preselect) {
             <div class="size-card-check" id="check-size-${s.key}"></div>
         </div>`).join('');
 
+    // Preseleccionar sabor si viene de la tarjeta
+    if (preselect) {
+        selSabor1 = pizzaItems.find(p => p.nombre === preselect) || null;
+    }
+
     // Construir paso 2: un solo grid con soporte para doble selección
     pmRenderSaborGrid();
 
@@ -1821,12 +1887,8 @@ function openPizzaModal(preselect) {
     document.getElementById('mitad-toggle').classList.remove('on');
     document.getElementById('mitad-pill').textContent = 'OFF';
 
-    // Preseleccionar sabor
-    if (preselect) {
-        document.getElementById('pm-pizza-name').textContent = '🍕 ' + preselect;
-    } else {
-        document.getElementById('pm-pizza-name').textContent = '🍕 Arma tu Pizza';
-    }
+    // Nombre del modal
+    document.getElementById('pm-pizza-name').textContent = selSabor1 ? '🍕 ' + selSabor1.nombre : '🍕 Arma tu Pizza';
     pmPreselect = preselect || null;
 
     pmGoToStep(0);
@@ -1913,7 +1975,6 @@ function pmNext() {
         if (pmStep === 1 && !selSabor1) return;
         if (pmStep === 1 && mediaActiva && !selSabor2) return;
 
-        // Si en paso 2 y no hay adicionales, saltar al paso 3
         pmGoToStep(pmStep + 1);
     } else {
         // Último paso → agregar al carrito
@@ -1953,38 +2014,22 @@ function pmUpdateSaborPrices() {
 }
 
 function pmSelectSabor(nombre) {
+    // Este grid solo se usa para: elegir sin preselect, o elegir 2da mitad
     const pizza = pizzaItems.find(p => p.nombre === nombre);
     if (!pizza) return;
 
-    if (!mediaActiva) {
-        // Sin mitad: selección simple
+    if (!selSabor1) {
+        // No hay sabor1: asignarlo
         selSabor1 = pizza;
-        selSabor2 = null;
-    } else {
-        // Con mitad: primer clic = sabor1, segundo clic = sabor2, tercer clic deselecciona
-        if (selSabor1 && selSabor1.nombre === nombre) {
-            // Deseleccionar sabor1
-            selSabor1 = selSabor2;
-            selSabor2 = null;
-        } else if (selSabor2 && selSabor2.nombre === nombre) {
-            // Deseleccionar sabor2
-            selSabor2 = null;
-        } else if (!selSabor1) {
-            selSabor1 = pizza;
-        } else if (!selSabor2) {
-            selSabor2 = pizza;
+        document.getElementById('pm-pizza-name').textContent = '🍕 ' + pizza.nombre;
+        document.getElementById('sabor-grid-wrap').style.display = 'none';
+    } else if (mediaActiva) {
+        // Hay sabor1 y mitad activa: asignar como sabor2
+        if (selSabor2 && selSabor2.nombre === nombre) {
+            selSabor2 = null; // deseleccionar
         } else {
-            // Ya hay dos seleccionados: reemplazar el segundo
             selSabor2 = pizza;
         }
-    }
-
-    if (selSabor1) {
-        document.getElementById('pm-pizza-name').textContent = '🍕 ' + selSabor1.nombre;
-        SIZES.forEach(s => {
-            const el = document.getElementById('price-' + s.key);
-            if (el) el.textContent = '$' + selSabor1[s.key].toLocaleString('es-CO');
-        });
     }
 
     pmRenderSaborGrid();
@@ -1992,16 +2037,56 @@ function pmSelectSabor(nombre) {
 }
 
 function pmRenderSaborGrid() {
+    // Card del sabor principal seleccionado
+    const wrap = document.getElementById('sabor-seleccionado-wrap');
+    if (wrap) {
+        if (selSabor1) {
+            const priceStr = selSize ? '$' + selSabor1[selSize].toLocaleString('es-CO') : '';
+            wrap.innerHTML = `
+                <div class="sabor-selected-card">
+                    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                        <span style="font-size:28px;">🍕</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:800;font-size:15px;color:#fff;">${selSabor1.nombre}</div>
+                            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${selSabor1.desc}</div>
+                        </div>
+                        ${priceStr ? `<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--brand);flex-shrink:0;">${priceStr}</div>` : ''}
+                    </div>
+                    <button class="sabor-change-btn" onclick="pmShowAllSabores('cambiar')">Cambiar</button>
+                </div>`;
+        } else {
+            wrap.innerHTML = `
+                <div class="sabor-selected-card empty" onclick="pmShowAllSabores('elegir')">
+                    <span style="font-size:28px;">🍕</span>
+                    <div style="flex:1;">
+                        <div style="font-weight:700;font-size:14px;color:var(--muted);">Toca para elegir sabor</div>
+                    </div>
+                    <span style="color:var(--brand);font-size:20px;">›</span>
+                </div>`;
+        }
+    }
+
+    // Grid de sabores para segunda mitad (filtra el sabor1 ya seleccionado)
     const grid = document.getElementById('sabor-grid');
+    const gridWrap = document.getElementById('sabor-grid-wrap');
+    const gridLabel = document.getElementById('sabor-grid-label');
     if (!grid) return;
-    grid.innerHTML = pizzaItems.map(p => {
-        const isS1 = selSabor1 && selSabor1.nombre === p.nombre;
+
+    // Determinar qué sabores mostrar y con qué propósito
+    let itemsToShow = pizzaItems;
+    if (mediaActiva && selSabor1) {
+        // Excluir el sabor1 del grid de segunda mitad
+        itemsToShow = pizzaItems.filter(p => p.nombre !== selSabor1.nombre);
+        if (gridLabel) gridLabel.textContent = '🍕 Elige el segundo sabor';
+    } else {
+        if (gridLabel) gridLabel.textContent = '🍕 Elige tu sabor';
+    }
+
+    grid.innerHTML = itemsToShow.map(p => {
         const isS2 = selSabor2 && selSabor2.nombre === p.nombre;
-        let badge = '';
-        if (mediaActiva && isS1) badge = '<div class="sabor-mitad-badge s1">1ª mitad</div>';
-        if (mediaActiva && isS2) badge = '<div class="sabor-mitad-badge s2">2ª mitad</div>';
-        const cls = (isS1 || isS2) ? 'sabor-btn selected' : 'sabor-btn';
+        const cls = isS2 ? 'sabor-btn selected' : 'sabor-btn';
         const priceStr = selSize ? '$' + p[selSize].toLocaleString('es-CO') : '';
+        const badge = mediaActiva && isS2 ? '<div class="sabor-mitad-badge s2">2ª mitad</div>' : '';
         return `<button class="${cls}" onclick="pmSelectSabor('${p.nombre.replace(/'/g,"\'")}')">
             ${badge}
             <span class="sabor-btn-emoji">🍕</span>
@@ -2010,6 +2095,41 @@ function pmRenderSaborGrid() {
             <div class="sabor-btn-price">${priceStr}</div>
         </button>`;
     }).join('');
+}
+
+function pmShowAllSabores(modo) {
+    const wrap = document.getElementById('sabor-grid-wrap');
+    const label = document.getElementById('sabor-grid-label');
+    if (!wrap) return;
+    if (modo === 'cambiar') {
+        // Mostrar todos para cambiar el sabor principal
+        if (label) label.textContent = '🍕 Cambia tu sabor';
+        // Mostrar todos incluyendo el actual
+        const grid = document.getElementById('sabor-grid');
+        if (grid) {
+            grid.innerHTML = pizzaItems.map(p => {
+                const isS1 = selSabor1 && selSabor1.nombre === p.nombre;
+                const cls = isS1 ? 'sabor-btn selected' : 'sabor-btn';
+                const priceStr = selSize ? '$' + p[selSize].toLocaleString('es-CO') : '';
+                return `<button class="${cls}" onclick="pmCambiarSabor1('${p.nombre.replace(/'/g,"\'")}')">
+                    <span class="sabor-btn-emoji">🍕</span>
+                    <div class="sabor-btn-name">${p.nombre}</div>
+                    <div class="sabor-btn-desc">${p.desc}</div>
+                    <div class="sabor-btn-price">${priceStr}</div>
+                </button>`;
+            }).join('');
+        }
+    }
+    wrap.style.display = 'block';
+}
+
+function pmCambiarSabor1(nombre) {
+    selSabor1 = pizzaItems.find(p => p.nombre === nombre);
+    selSabor2 = null; // reset 2da mitad al cambiar sabor principal
+    document.getElementById('pm-pizza-name').textContent = '🍕 ' + nombre;
+    document.getElementById('sabor-grid-wrap').style.display = 'none';
+    pmRenderSaborGrid();
+    pmUpdateFooter();
 }
 
 function pmToggleBorde() {
@@ -2026,11 +2146,16 @@ function toggleMedia() {
     const toggle = document.getElementById('mitad-toggle');
     const pill = document.getElementById('mitad-pill');
     toggle.classList.toggle('on', mediaActiva);
-    pill.textContent = mediaActiva ? 'ON' : 'OFF';
-    if (!mediaActiva) {
+    pill.textContent = mediaActiva ? 'SÍ' : 'NO';
+    const wrap = document.getElementById('sabor-grid-wrap');
+    if (mediaActiva) {
+        // Mostrar grid de segunda mitad (sin el sabor1)
+        if (wrap) wrap.style.display = 'block';
+    } else {
         selSabor2 = null;
+        if (wrap) wrap.style.display = 'none';
     }
-    pmRenderSaborGrid(); // re-render para mostrar/ocultar badges de mitad
+    pmRenderSaborGrid();
     pmUpdateFooter();
 }
 
@@ -2305,19 +2430,29 @@ loadData();
 
             <!-- PASO 2: SABOR PRINCIPAL -->
             <div class="pm-step" id="pm-step-1">
-                <div class="pm-sec-title">Elige el sabor</div>
-                <div class="pm-sec-sub">¿Cuál quieres hoy?</div>
-                <div class="mitad-toggle" id="mitad-toggle" onclick="toggleMedia()">
+                <div class="pm-sec-title">Tu sabor</div>
+                <div class="pm-sec-sub">¿Lo cambias o agregas una segunda mitad?</div>
+
+                <!-- Sabor seleccionado (card grande) -->
+                <div id="sabor-seleccionado-wrap"></div>
+
+                <!-- Toggle mitad & mitad -->
+                <div class="mitad-toggle" id="mitad-toggle" onclick="toggleMedia()" style="margin-top:14px;">
                     <div class="mitad-toggle-left">
                         <span class="mitad-toggle-icon">🍕🍕</span>
                         <div>
-                            <div class="mitad-toggle-label">Mitad &amp; Mitad</div>
-                            <div class="mitad-toggle-sub">Dos sabores en una pizza</div>
+                            <div class="mitad-toggle-label">¿Quieres dos sabores?</div>
+                            <div class="mitad-toggle-sub">Mitad &amp; Mitad</div>
                         </div>
                     </div>
-                    <span class="mitad-pill" id="mitad-pill">OFF</span>
+                    <span class="mitad-pill" id="mitad-pill">NO</span>
                 </div>
-                <div class="sabor-grid" id="sabor-grid"></div>
+
+                <!-- Grid completo de sabores (oculto por defecto, visible al cambiar o activar mitad) -->
+                <div id="sabor-grid-wrap" style="display:none; margin-top:14px;">
+                    <div id="sabor-grid-label" class="pm-sabor2-label" style="margin-bottom:10px;"></div>
+                    <div class="sabor-grid" id="sabor-grid"></div>
+                </div>
             </div>
 
             <!-- PASO 3: ADICIONALES -->
