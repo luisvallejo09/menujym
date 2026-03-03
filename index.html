@@ -1983,11 +1983,20 @@ async function loadPizzas() {
         });
         if (!pizzaItems.length) throw new Error('empty');
     } catch(e) {
-        console.warn('Pizzas: usando datos de demostración');
-        pizzaItems = PIZZA_FALLBACK;
-        pizzaAdic  = PIZZA_ADIC_FALLBACK;
+        console.warn('Pizzas: hoja no disponible, sección ocultada');
+        pizzaItems = [];
+        pizzaAdic  = null;
     }
-    renderPizzaTab();
+    // Solo renderizar si hay pizzas activas
+    if (pizzaItems.length) {
+        renderPizzaTab();
+    } else {
+        // Quitar sección y tab si existían de una carga previa
+        const sec = document.getElementById('cat-Pizzas');
+        if (sec) sec.remove();
+        const tab = document.getElementById('tab-Pizzas');
+        if (tab) tab.remove();
+    }
 }
 
 // ── ESTADO DEL MODAL PASO A PASO ──
