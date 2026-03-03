@@ -68,15 +68,14 @@
         }
         .smoke-puff {
             position: absolute; border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, rgba(180,130,60,0.03) 40%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,200,100,0.05) 0%, transparent 70%);
             animation: smokeDrift linear infinite;
-            filter: blur(18px);
+            /* Sin filter:blur — demasiado costoso en móvil */
         }
         @keyframes smokeDrift {
-            0%   { transform: translateY(0) translateX(0) scale(0.4); opacity: 0; }
-            8%   { opacity: 1; }
-            50%  { transform: translateY(-45vh) translateX(var(--dx)) scale(1.4); opacity: 0.5; }
-            100% { transform: translateY(-100vh) translateX(calc(var(--dx)*1.8)) scale(2.2); opacity: 0; }
+            0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+            10%  { opacity: 0.6; }
+            100% { transform: translateY(-90vh) scale(2); opacity: 0; }
         }
         .ember {
             position: absolute; border-radius: 50%;
@@ -85,10 +84,9 @@
             opacity: 0;
         }
         @keyframes emberRise {
-            0%   { transform: translateY(0) translateX(0); opacity: 0; }
-            10%  { opacity: 0.9; }
-            80%  { opacity: 0.2; }
-            100% { transform: translateY(-70vh) translateX(var(--ex)); opacity: 0; }
+            0%   { transform: translateY(0); opacity: 0; }
+            10%  { opacity: 0.8; }
+            100% { transform: translateY(-65vh); opacity: 0; }
         }
         /* Gama baja: sin animaciones pesadas */
         .perf-low .smoke-puff, .perf-low .ember { display: none !important; }
@@ -144,20 +142,14 @@
             width: 46px; height: 46px; border-radius: 50%;
             border: 2px solid var(--brand);
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(244,180,0,0.4), inset 0 0 10px rgba(244,180,0,0.1);
             flex-shrink: 0;
-            animation: logoPulse 3s ease-in-out infinite;
-        }
-        @keyframes logoPulse {
-            0%,100% { opacity: 1; }
-            50%      { opacity: 0.85; }
         }
         .logo-ring img { width: 100%; height: 100%; object-fit: cover; }
         .brand-name {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 26px; letter-spacing: 2px;
             color: #fff;
-            text-shadow: 0 0 20px rgba(244,180,0,0.5);
+
             line-height: 1;
         }
         .brand-sub {
@@ -170,10 +162,6 @@
             color: #000; font-size: 10px; font-weight: 800;
             padding: 4px 10px; border-radius: 20px;
             letter-spacing: 0.5px;
-            animation: badgeBlink 2s ease-in-out infinite;
-        }
-        @keyframes badgeBlink {
-            0%,100% { opacity: 1; } 50% { opacity: 0.6; }
         }
 
         /* ── TABS ── */
@@ -192,22 +180,26 @@
             background: linear-gradient(to right, transparent, rgba(8,8,8,0.95));
             pointer-events: none; z-index: 2;
         }
-        /* Hint de deslizar — aparece solo una vez */
+        /* Hint de deslizar — aparece arriba de los tabs */
         .tabs-hint {
-            position: absolute; right: 8px; top: 50%;
-            transform: translateY(-50%);
+            position: absolute; top: -22px; left: 50%;
+            transform: translateX(-50%);
             font-size: 9px; color: var(--muted); font-weight: 700;
-            letter-spacing: 0.5px; pointer-events: none;
-            display: flex; align-items: center; gap: 3px;
+            letter-spacing: 1px; text-transform: uppercase;
+            pointer-events: none; white-space: nowrap;
+            display: flex; align-items: center; gap: 4px;
             opacity: 0; z-index: 3;
-            animation: hintSlide 3s ease 1.2s forwards;
+            background: rgba(8,8,8,0.85);
+            padding: 3px 10px; border-radius: 20px;
+            border: 1px solid #222;
+            animation: hintSlide 5s ease 1.5s forwards;
         }
-        .tabs-hint svg { width: 12px; height: 12px; }
+        .tabs-hint svg { width: 11px; height: 11px; }
         @keyframes hintSlide {
-            0%   { opacity: 0; transform: translateY(-50%) translateX(4px); }
-            20%  { opacity: 1; transform: translateY(-50%) translateX(0); }
-            70%  { opacity: 1; transform: translateY(-50%) translateX(0); }
-            100% { opacity: 0; transform: translateY(-50%) translateX(4px); }
+            0%   { opacity: 0; }
+            15%  { opacity: 1; }
+            75%  { opacity: 1; }
+            100% { opacity: 0; }
         }
         .tabs {
             display: flex; gap: 8px; overflow-x: auto;
@@ -253,7 +245,7 @@
             background: #ff3b30; color: #fff;
             font-size: 9px; font-weight: 900; letter-spacing: 1px;
             padding: 3px 8px; border-radius: 20px;
-            animation: badgeBlink 1.5s infinite;
+
         }
 
         /* Slider */
@@ -406,7 +398,7 @@
             position: relative;
             contain: layout style;
         }
-        .item:hover { transform: translateY(-3px); border-color: rgba(244,180,0,0.2); }
+        .item:hover { border-color: rgba(244,180,0,0.2); }
         .item.in-cart { border-color: rgba(244,180,0,0.4); }
 
         .item-img-cont {
@@ -468,10 +460,11 @@
             border: none; cursor: pointer; z-index: 1500;
             box-shadow: 0 8px 30px rgba(244,180,0,0.4);
             animation: cartFloat 2.5s ease-in-out infinite;
+            will-change: transform;
         }
         @keyframes cartFloat {
-            0%,100% { transform: translateX(-50%) translateY(0); box-shadow: 0 8px 30px rgba(244,180,0,0.4); }
-            50%      { transform: translateX(-50%) translateY(-4px); box-shadow: 0 14px 40px rgba(244,180,0,0.6); }
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50%      { transform: translateX(-50%) translateY(-5px); }
         }
         .cart-label { font-size: 14px; letter-spacing: 0.5px; }
         .cart-pill {
@@ -628,17 +621,17 @@
             transition: all 0.25s ease;
             box-shadow: 0 6px 25px rgba(244,180,0,0.35);
         }
-        .btn-send:hover { transform: translateY(-2px); box-shadow: 0 10px 35px rgba(244,180,0,0.5); }
+        .btn-send:hover { transform: translateY(-2px); }
         .btn-send:active { transform: scale(0.98); }
 
         @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
         /* ── ANIMACIONES DE ENTRADA ── */
         .fade-up {
-            opacity: 0; transform: translateY(16px);
-            animation: fadeUp 0.35s ease forwards;
+            opacity: 0;
+            animation: fadeUp 0.3s ease forwards;
         }
-        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { to { opacity: 1; } }
         /* ══════════════════════════════
            MODAL PIZZA — ESTILO PASO A PASO
         ══════════════════════════════ */
@@ -918,7 +911,7 @@
             opacity: 0.35; cursor: not-allowed;
             box-shadow: none; transform: none;
         }
-        .pm-btn-next:not(:disabled):active { transform: scale(0.98); }
+        .pm-btn-next:not(:disabled):active { opacity: 0.9; }
 
         /* ── PIZZA CARDS ── */
         .pizza-card-footer {
@@ -1319,12 +1312,12 @@ function initSmoke() {
     layer.innerHTML = '';
 
     // Columnas de humo distribuidas horizontalmente
-    const cols = 5;
+    const cols = 4;
     for (let c = 0; c < cols; c++) {
         const xBase = (c / (cols - 1)) * 90 + 5;
 
-        // 2 puffs por columna
-        for (let p = 0; p < 2; p++) {
+        // 1 puff por columna
+        for (let p = 0; p < 1; p++) {
             const puff = document.createElement('div');
             puff.className = 'smoke-puff';
             const size = 120 + Math.random() * 180;
@@ -1345,7 +1338,7 @@ function initSmoke() {
     }
 
     // Brasas pequeñas
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 6; i++) {
         const ember = document.createElement('div');
         ember.className = 'ember';
         const size = 1.5 + Math.random() * 2.5;
