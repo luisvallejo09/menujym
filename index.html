@@ -135,7 +135,6 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(244,180,0,0.15);
-            transform: translateZ(0);
         }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .logo-ring {
@@ -172,35 +171,8 @@
             backdrop-filter: blur(15px);
             transform: translateZ(0);
         }
-        /* Fade derecho que indica scroll horizontal */
-        .tabs-wrap::after {
-            content: '';
-            position: absolute; top: 0; right: 0; bottom: 0;
-            width: 40px;
-            background: linear-gradient(to right, transparent, rgba(8,8,8,0.95));
-            pointer-events: none; z-index: 2;
-        }
-        /* Hint de deslizar — aparece arriba de los tabs */
-        .tabs-hint {
-            position: absolute; top: -22px; left: 50%;
-            transform: translateX(-50%);
-            font-size: 9px; color: var(--muted); font-weight: 700;
-            letter-spacing: 1px; text-transform: uppercase;
-            pointer-events: none; white-space: nowrap;
-            display: flex; align-items: center; gap: 4px;
-            opacity: 0; z-index: 3;
-            background: rgba(8,8,8,0.85);
-            padding: 3px 10px; border-radius: 20px;
-            border: 1px solid #222;
-            animation: hintSlide 5s ease 1.5s forwards;
-        }
-        .tabs-hint svg { width: 11px; height: 11px; }
-        @keyframes hintSlide {
-            0%   { opacity: 0; }
-            15%  { opacity: 1; }
-            75%  { opacity: 1; }
-            100% { opacity: 0; }
-        }
+
+
         .tabs {
             display: flex; gap: 8px; overflow-x: auto;
             padding: 10px 15px; scrollbar-width: none;
@@ -1142,7 +1114,36 @@
         .search-item-price { margin-left: auto; font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--brand); flex-shrink: 0; }
         .search-empty { text-align: center; color: var(--muted); font-size: 13px; padding: 24px 0; }
 
-    </style>
+    
+        /* ── TOAST DESLIZA — dentro del header, lado derecho del título ── */
+        .cat-toast {
+            position: fixed;
+            top: 16px; right: 60px;
+            z-index: 1300;
+            background: rgba(244,180,0,0.1);
+            border: 1px solid rgba(244,180,0,0.3);
+            border-radius: 20px;
+            padding: 7px 13px 7px 10px;
+            display: flex; align-items: center; gap: 8px;
+            pointer-events: none;
+            opacity: 0;
+            max-width: calc(100vw - 180px);
+            animation: toastPop 6s ease 2s forwards;
+        }
+        .cat-toast-icon { font-size: 12px; line-height: 1; flex-shrink: 0; }
+        .cat-toast-text {
+            font-size: 10px; font-weight: 600;
+            color: #ccc; letter-spacing: 0.1px;
+            line-height: 1.4;
+        }
+        .cat-toast-text span { color: var(--brand); font-weight: 800; }
+        @keyframes toastPop {
+            0%   { opacity: 0; transform: translateX(6px); }
+            12%  { opacity: 1; transform: translateX(0); }
+            78%  { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(6px); }
+        }
+        </style>
 </head>
 <body>
 
@@ -1169,13 +1170,16 @@
     </button>
 </header>
 
+<!-- Toast categorías -->
+<div class="cat-toast" id="cat-toast">
+    <span class="cat-toast-icon">🔥</span>
+    <div class="cat-toast-text"><span>¡Pide lo que te antoja!</span><br>Toca o desliza las categorías</div>
+</div>
+
 <!-- Tabs categorías -->
 <div class="tabs-wrap">
     <div class="tabs" id="tab-bar"></div>
-    <div class="tabs-hint" id="tabs-hint">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        desliza
-    </div>
+
 </div>
 
 <!-- Sección de promociones -->
@@ -2471,6 +2475,24 @@ function updatePizzaTotal() { pmUpdateFooter(); }
 function updatePizzaPrices() {}
 
 loadData();
+
+// ── TOAST PRIMERA VISITA ──
+(function() {
+    try {
+        const visits = parseInt(localStorage.getItem('dff_visits') || '0') + 1;
+        localStorage.setItem('dff_visits', visits);
+        const toast = document.getElementById('cat-toast');
+        if (toast) {
+            if (visits <= 3) {
+                // Primeras 3 visitas: mostrar toast
+                toast.style.display = 'flex';
+            } else {
+                // Ya conoce la app: ocultar para siempre
+                toast.style.display = 'none';
+            }
+        }
+    } catch(e) {}
+})();
 
 // ── LAZY IMAGES con IntersectionObserver ──
 if ('IntersectionObserver' in window) {
