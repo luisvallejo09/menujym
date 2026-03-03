@@ -1118,30 +1118,31 @@
         /* ── TOAST DESLIZA — dentro del header, lado derecho del título ── */
         .cat-toast {
             position: fixed;
-            top: 16px; right: 60px;
-            z-index: 1300;
-            background: rgba(244,180,0,0.1);
-            border: 1px solid rgba(244,180,0,0.3);
+            top: 78px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 1250;
+            background: rgba(10,10,10,0.95);
+            border: 1px solid rgba(244,180,0,0.35);
             border-radius: 20px;
-            padding: 7px 13px 7px 10px;
+            padding: 7px 14px 7px 11px;
             display: flex; align-items: center; gap: 8px;
             pointer-events: none;
             opacity: 0;
-            max-width: calc(100vw - 180px);
+            white-space: nowrap;
             animation: toastPop 6s ease 2s forwards;
         }
-        .cat-toast-icon { font-size: 12px; line-height: 1; flex-shrink: 0; }
+        .cat-toast-icon { font-size: 13px; line-height: 1; flex-shrink: 0; }
         .cat-toast-text {
-            font-size: 10px; font-weight: 600;
+            font-size: 11px; font-weight: 600;
             color: #ccc; letter-spacing: 0.1px;
-            line-height: 1.4;
+            line-height: 1.35;
         }
         .cat-toast-text span { color: var(--brand); font-weight: 800; }
         @keyframes toastPop {
-            0%   { opacity: 0; transform: translateX(6px); }
-            12%  { opacity: 1; transform: translateX(0); }
-            78%  { opacity: 1; transform: translateX(0); }
-            100% { opacity: 0; transform: translateX(6px); }
+            0%   { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+            12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+            78%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
         }
         </style>
 </head>
