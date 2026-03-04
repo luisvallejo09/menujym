@@ -78,6 +78,7 @@
         .perf-low .bottom-nav { background: #060606 !important; border-top: 1px solid #1a1a1a !important; }
         .perf-low .overlay { background: rgba(0,0,0,0.85) !important; }
         .perf-low #pizza-modal, .perf-low #form-modal { background: #080808 !important; }
+        .perf-low #pizza-modal { transform: none !important; opacity: 1 !important; transition: none !important; }
         .perf-low .item:hover { transform: none !important; }
         .perf-low .fade-up { opacity: 1 !important; transform: none !important; }
         .perf-low .logo-ring { box-shadow: none !important; }
@@ -430,6 +431,19 @@
         .total-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0 0; border-top: 1px solid #1e1e1e; margin-top: 6px; }
         .total-label { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: #fff; }
         .total-value { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--brand); }
+
+        /* ── PROPINA ── */
+        .tip-section { margin-top: 14px; padding: 14px; background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 14px; }
+        .tip-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .tip-label span { color: var(--brand); font-size: 12px; }
+        .tip-btns { display: flex; gap: 7px; }
+        .tip-btn { flex: 1; padding: 8px 4px; border-radius: 10px; border: 1.5px solid #2a2a2a; background: #111; color: var(--muted); font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s ease; text-align: center; }
+        .tip-btn.active { background: var(--brand-dim); border-color: var(--brand); color: var(--brand); }
+        .tip-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1a1a1a; font-size: 12px; color: var(--muted); }
+        .tip-amount { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--brand); }
+        .total-final-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 0; margin-top: 4px; border-top: 2px solid rgba(244,180,0,0.3); }
+        .total-final-label { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: #fff; }
+        .total-final-value { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--brand); }
         .btn-send { background: var(--brand); color: #000; border: none; cursor: pointer; width: 100%; padding: 18px; border-radius: 16px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.25s ease; box-shadow: 0 6px 25px rgba(244,180,0,0.35); }
         .btn-send:hover { transform: translateY(-2px); }
         .btn-send:active { transform: scale(0.98); }
@@ -444,7 +458,11 @@
             background: #080808;
             display: none; flex-direction: column; overflow: hidden;
             height: 100dvh; max-height: 100dvh;
+            transform: translateY(100%);
+            transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.25s ease;
+            opacity: 0;
         }
+        #pizza-modal.open { transform: translateY(0); opacity: 1; }
         .pm-header { flex-shrink: 0; background: #0d0d0d; border-bottom: 1px solid #1a1a1a; padding: 0 16px; }
         .pm-top { display: flex; align-items: center; gap: 12px; height: 58px; }
         .pm-back { width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--txt); font-size: 18px; flex-shrink: 0; transition: background 0.2s; }
@@ -733,6 +751,7 @@ let allItems = [], cart = {}, timers = {}, modoEntrega = 'Domicilio';
 let sliderIndex = 0, promos = [], sliderTimer = null;
 let ADIC_POR_PLATO = {};
 let _adicState = { itemName: null, cat: null, selected: new Set() };
+let tipPct = 0; // porcentaje de propina: 0, 10, 15
 
 // ── DETECCIÓN RENDIMIENTO ──
 (function detectPerf() {
@@ -900,7 +919,7 @@ function renderItemList(p, c) {
     const id = encodeURIComponent(p.name); const inC = !!cart[p.name];
     const sn = p.name.replace(/'/g,"\\'"); const sc = c.replace(/'/g,"\\'");
     const img = p.img ? `<img src="${p.img}" loading="lazy" decoding="async">` : `<span class="item-emoji">🍔</span>`;
-    const btn = inC ? `<button class="q-btn" onclick="changeQty(event,'${sn}',-1)">−</button><span class="qty-val" id="val-h-${id}">${cart[p.name].qty}</span><button class="q-btn" onclick="changeQty(event,'${sn}',1)">+</button>` : `<span style="font-size:18px">+</span>`;
+    const btn = inC ? `<button class="q-btn" onclick="changeQty(event,'${sn}',-1)">−</button><span class="qty-val" id="val-${id}">${cart[p.name].qty}</span><button class="q-btn" onclick="changeQty(event,'${sn}',1)">+</button>` : `<span style="font-size:18px">+</span>`;
     const adics = cart[p.name] && cart[p.name].adicionales && cart[p.name].adicionales.length > 0;
     const adicLabel = adics ? '✓ Extra' : '＋ Extra';
     const adicClass = adics ? 'btn-adic-h has-adic' : 'btn-adic-h';
@@ -980,16 +999,28 @@ function expandBtn(name, price, cat) {
         updateCartUI();
         if (btn) {
             const isGrid = btn.classList.contains('qty-btn-g');
-            btn.classList.add('expanded');
             const valCls = isGrid ? 'qty-val-g' : 'qty-val';
             const esc    = name.replace(/'/g,"\\'");
             btn.innerHTML = `<button class="q-btn" onclick="changeQty(event,'${esc}',-1)">−</button><span class="${valCls}" id="val-${id}">1</span><button class="q-btn" onclick="changeQty(event,'${esc}',1)">+</button>`;
+            // Force reflow to trigger CSS transition animation
+            btn.getBoundingClientRect();
+            btn.classList.add('expanded');
             const item = btn.closest('.item, .item-h');
             if (item) item.classList.add('in-cart');
         }
         setTimeout(() => mostrarUpsell(name), currentView === 'grid' ? 600 : 350);
     } else {
-        if (btn) btn.classList.add('expanded');
+        if (btn) {
+            // Refresh inner content in case it was cleared, then animate
+            const isGrid = btn.classList.contains('qty-btn-g');
+            const valCls = isGrid ? 'qty-val-g' : 'qty-val';
+            const esc    = name.replace(/'/g,"\\'");
+            if (!btn.querySelector('.q-btn')) {
+                btn.innerHTML = `<button class="q-btn" onclick="changeQty(event,'${esc}',-1)">−</button><span class="${valCls}" id="val-${id}">${cart[name].qty}</span><button class="q-btn" onclick="changeQty(event,'${esc}',1)">+</button>`;
+            }
+            btn.getBoundingClientRect();
+            btn.classList.add('expanded');
+        }
     }
     resetTimer(name);
 }
@@ -1148,10 +1179,24 @@ function showForm() {
         });
     });
     const notaDom = modoEntrega==='Domicilio' ? `<div class="nota-envio">⚠️ <b>TOTAL PARCIAL</b> — El costo del envío se coordina por WhatsApp.</div>` : '';
-    html += `<div class="total-row"><span class="total-label">TOTAL</span><span class="total-value">$${total.toLocaleString('es-CO')}</span></div>${notaDom}`;
+    const tipAmount = Math.round(total * tipPct / 100);
+    const grandTotal = total + tipAmount;
+    html += `<div class="total-row"><span class="total-label">SUBTOTAL</span><span class="total-value">$${total.toLocaleString('es-CO')}</span></div>${notaDom}`;
+    html += `
+    <div class="tip-section">
+        <div class="tip-label">🙏 Propina sugerida <span id="tip-pct-label">${tipPct > 0 ? tipPct+'%' : 'Sin propina'}</span></div>
+        <div class="tip-btns">
+            <button class="tip-btn${tipPct===0?' active':''}" onclick="setTip(0)">Sin propina</button>
+            <button class="tip-btn${tipPct===10?' active':''}" onclick="setTip(10)">10%</button>
+            <button class="tip-btn${tipPct===15?' active':''}" onclick="setTip(15)">15%</button>
+        </div>
+        ${tipAmount > 0 ? `<div class="tip-row"><span>Propina (${tipPct}%)</span><span class="tip-amount">+$${tipAmount.toLocaleString('es-CO')}</span></div>` : ''}
+        <div class="total-final-row"><span class="total-final-label">TOTAL</span><span class="total-final-value">$${grandTotal.toLocaleString('es-CO')}</span></div>
+    </div>`;
     document.getElementById('resumen-lista').innerHTML = html;
     document.getElementById('form-modal').style.display = 'flex';
 }
+function setTip(pct) { tipPct = pct; showForm(); }
 function setEntrega(t) { modoEntrega=t; document.getElementById('btn-domicilio').classList.toggle('active',t==='Domicilio'); document.getElementById('btn-tienda').classList.toggle('active',t==='Tienda'); document.getElementById('div-domicilio').style.display=t==='Tienda'?'none':'block'; showForm(); }
 function cerrarForm() { document.getElementById('form-modal').style.display='none'; }
 
@@ -1201,7 +1246,14 @@ function enviarPedido() {
             t += `   *Subtotal: $${((i.price + i.adicPrecio) * i.qty).toLocaleString('es-CO')}*\n`;
         });
     });
-    t+=`\n━━━━━━━━━━━━━━━━\n💰 *TOTAL: $${total.toLocaleString('es-CO')}*`;
+    t+=`\n━━━━━━━━━━━━━━━━\n💰 *SUBTOTAL: $${total.toLocaleString('es-CO')}*`;
+    if (tipPct > 0) {
+        const tipAmt = Math.round(total * tipPct / 100);
+        t+=`\n🙏 *Propina (${tipPct}%): +$${tipAmt.toLocaleString('es-CO')}*`;
+        t+=`\n💎 *TOTAL: $${(total+tipAmt).toLocaleString('es-CO')}*`;
+    } else {
+        t+=`\n💎 *TOTAL: $${total.toLocaleString('es-CO')}*`;
+    }
     cart={}; updateCartUI(); cerrarForm(); renderMenu();
     if (pizzaItems.length) renderPizzaTab();
     window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP}&text=${encodeURIComponent(t)}`,'_blank');
@@ -1283,7 +1335,9 @@ function openPizzaModal(preselect) {
     document.getElementById('pm-pizza-name').textContent=selSabor1?'🍕 '+selSabor1.nombre:'🍕 Arma tu Pizza';
     pmPreselect=preselect||null;
     pmGoToStep(0);
-    document.getElementById('pizza-modal').style.display='flex';
+    const pm = document.getElementById('pizza-modal');
+    pm.style.display = 'flex';
+    requestAnimationFrame(() => requestAnimationFrame(() => pm.classList.add('open')));
 }
 function pmGoToStep(step) {
     pmStep=step;
@@ -1371,7 +1425,7 @@ function pmBuildResumenFinal() {
     html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(244,180,0,0.08);border:1px solid rgba(244,180,0,0.2);border-radius:10px;margin-top:4px;"><span style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Total</span><span style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--brand);">$${total.toLocaleString('es-CO')}</span></div>`;
     el.innerHTML=html;
 }
-function closePizzaModal() { document.getElementById('pizza-modal').style.display='none'; }
+function closePizzaModal() { const pm=document.getElementById('pizza-modal'); pm.classList.remove('open'); setTimeout(()=>{ pm.style.display='none'; },380); }
 function addPizzaToCart() {
     if(!selSabor1||!selSize) return;
     let base=selSabor1[selSize]; if(mediaActiva&&selSabor2)base=Math.max(selSabor1[selSize],selSabor2[selSize]);
