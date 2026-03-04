@@ -100,6 +100,11 @@
             background: rgba(8,8,8,0.95);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(244,180,0,0.15);
+            /* Fija en capa GPU propia — evita parpadeo al mostrar/ocultar barra del nav */
+            -webkit-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
+            will-change: transform;
+            isolation: isolate;
         }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .logo-ring { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--brand); overflow: hidden; flex-shrink: 0; }
@@ -113,8 +118,11 @@
             position: fixed; top: 72px; left: 0; right: 0; z-index: 1100;
             background: rgba(8,8,8,0.95);
             border-bottom: 1px solid #1a1a1a;
-            backdrop-filter: blur(15px);
-            transform: translateZ(0);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            -webkit-transform: translate3d(0,0,0);
+            transform: translate3d(0,0,0);
+            will-change: transform;
+            isolation: isolate;
         }
         .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 15px; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
@@ -385,7 +393,7 @@
 
         /* ── MODAL PEDIDO ── */
         #form-modal {
-            position: fixed; inset: 0; z-index: 2000;
+            position: fixed; inset: 0; z-index: 10000;
             background: #080808;
             display: none; flex-direction: column; overflow: hidden;
             /* dvh = dynamic viewport height (excluye barra de navegador en móvil) */
@@ -438,7 +446,12 @@
         @keyframes fadeUp { to { opacity: 1; } }
 
         /* ── MODAL PIZZA ── */
-        #pizza-modal { position: fixed; inset: 0; z-index: 2100; background: #080808; display: none; flex-direction: column; overflow: hidden; }
+        #pizza-modal {
+            position: fixed; inset: 0; z-index: 10000;
+            background: #080808;
+            display: none; flex-direction: column; overflow: hidden;
+            height: 100dvh; max-height: 100dvh;
+        }
         .pm-header { flex-shrink: 0; background: #0d0d0d; border-bottom: 1px solid #1a1a1a; padding: 0 16px; }
         .pm-top { display: flex; align-items: center; gap: 12px; height: 58px; }
         .pm-back { width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--txt); font-size: 18px; flex-shrink: 0; transition: background 0.2s; }
@@ -510,7 +523,7 @@
         .sabor-change-btn:hover { border-color: var(--brand); color: var(--brand); }
         .pizza-nota { background: #0e0e0e; border: 1.5px solid #1e1e1e; border-radius: 12px; padding: 14px; color: #ccc; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; width: 100%; resize: none; height: 72px; transition: border-color 0.2s; margin-top: 10px; }
         .pizza-nota:focus { border-color: var(--brand); }
-        .pm-footer { flex-shrink: 0; background: #0d0d0d; border-top: 1px solid #1a1a1a; padding: 12px 16px 16px; }
+        .pm-footer { flex-shrink: 0; background: #0d0d0d; border-top: 1px solid #1a1a1a; padding: 12px 16px; padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)); }
         .pm-resumen { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .pm-resumen-items { font-size: 11px; color: var(--muted); max-width: 65%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .pm-resumen-total { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--brand); }
@@ -1641,5 +1654,38 @@ if ('IntersectionObserver' in window) {
     </div>
 </div>
 
+
+<script>
+/* ── visualViewport: mantiene nav anclado al fondo visible aunque
+   la barra del browser aparezca/desaparezca ── */
+(function () {
+    'use strict';
+    const nav     = document.querySelector('.bottom-nav');
+    const cartBar = document.getElementById('cart-bar');
+    if (!nav || !window.visualViewport) return;
+
+    function pinToVisualBottom() {
+        const vv      = window.visualViewport;
+        // Cuánto se ha desplazado el viewport visual respecto al layout viewport
+        const offsetY = window.innerHeight - vv.offsetTop - vv.height;
+        const safeBot = parseFloat(
+            getComputedStyle(document.documentElement)
+                .getPropertyValue('--sab') || '0'
+        ) || 0;
+
+        // Shift the nav up by the difference (browser chrome offset)
+        nav.style.transform = `translate3d(0, ${-Math.max(0, offsetY)}px, 0)`;
+
+        // Carrito flotante: igual de anclado
+        if (cartBar) {
+            cartBar.style.bottom = `calc(${68 + Math.max(0, offsetY)}px + env(safe-area-inset-bottom, 0px))`;
+        }
+    }
+
+    window.visualViewport.addEventListener('resize', pinToVisualBottom, { passive: true });
+    window.visualViewport.addEventListener('scroll', pinToVisualBottom, { passive: true });
+    pinToVisualBottom();
+})();
+</script>
 </body>
 </html>
