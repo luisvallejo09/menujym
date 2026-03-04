@@ -98,13 +98,9 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px;
             background: rgba(8,8,8,0.95);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(244,180,0,0.15);
-            /* Capa GPU propia — evita parpadeo al mostrar/ocultar barra del navegador */
-            -webkit-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0);
-            will-change: transform;
-            isolation: isolate;
         }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .logo-ring { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--brand); overflow: hidden; flex-shrink: 0; }
@@ -118,11 +114,8 @@
             position: fixed; top: 72px; left: 0; right: 0; z-index: 1100;
             background: rgba(8,8,8,0.95);
             border-bottom: 1px solid #1a1a1a;
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            -webkit-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0);
-            will-change: transform;
-            isolation: isolate;
+            backdrop-filter: blur(15px);
+            transform: translateZ(0);
         }
         .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 15px; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
@@ -537,19 +530,12 @@
         /* ── NAVBAR ── */
         body { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
-            background: rgba(6,6,6,0.99);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1400;
+            height: 60px;
+            background: rgba(6,6,6,0.98);
+            backdrop-filter: blur(20px);
             border-top: 1px solid #1e1e1e;
             display: flex; align-items: center; justify-content: space-around;
-            /* Fuerza capa GPU propia: evita que el scroll de iOS lo entierre */
-            -webkit-transform: translate3d(0,0,0);
-            transform: translate3d(0,0,0);
-            will-change: transform;
-            /* Respeta la barra de inicio en iPhone X+ */
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-            height: calc(60px + env(safe-area-inset-bottom, 0px));
-            isolation: isolate;
         }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; cursor: pointer; color: #3a3a3a; transition: color 0.2s ease; padding: 8px 0; position: relative; }
         .nav-btn svg { width: 21px; height: 21px; transition: transform 0.2s ease; }
@@ -1654,39 +1640,6 @@ if ('IntersectionObserver' in window) {
 </div>
 
 
-<script>
-/* ── Ancla el nav inferior al fondo del viewport visible.
-   Solo actúa en el evento resize del visualViewport (cuando la barra
-   del navegador aparece o desaparece), NO durante el scroll normal.
-   Esto elimina los parpadeos. ── */
-(function () {
-    'use strict';
 
-    const nav     = document.querySelector('.bottom-nav');
-    const cartBar = document.getElementById('cart-bar');
-
-    if (!nav || !window.visualViewport) return;
-
-    function pinBottom() {
-        const vv = window.visualViewport;
-        /* Diferencia entre el layout viewport y el visual viewport.
-           Cuando la barra del browser está visible, vv.height < window.innerHeight.
-           Subimos el nav esa diferencia para que quede pegado al fondo visible. */
-        const gap = Math.max(0, window.innerHeight - vv.height);
-        nav.style.transform = `translate3d(0, ${-gap}px, 0)`;
-
-        if (cartBar) {
-            const navH = parseFloat(getComputedStyle(nav).height) || 60;
-            cartBar.style.bottom = (navH + gap) + 'px';
-        }
-    }
-
-    /* Solo escuchar resize (cambio de tamaño del viewport = barra nav aparece/desaparece).
-       El evento scroll del visualViewport causa los parpadeos y no es necesario aquí. */
-    window.visualViewport.addEventListener('resize', pinBottom, { passive: true });
-
-    pinBottom();
-})();
-</script>
 </body>
 </html>
