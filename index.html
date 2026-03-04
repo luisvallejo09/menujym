@@ -105,8 +105,6 @@
             transform: translate3d(0,0,0);
             will-change: transform;
             isolation: isolate;
-            /* Sin transición para que siga la barra del nav sin lag */
-            transition: none;
         }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .logo-ring { width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--brand); overflow: hidden; flex-shrink: 0; }
@@ -125,7 +123,6 @@
             transform: translate3d(0,0,0);
             will-change: transform;
             isolation: isolate;
-            transition: none;
         }
         .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 15px; scrollbar-width: none; }
         .tabs::-webkit-scrollbar { display: none; }
@@ -553,8 +550,6 @@
             padding-bottom: env(safe-area-inset-bottom, 0px);
             height: calc(60px + env(safe-area-inset-bottom, 0px));
             isolation: isolate;
-            /* Sin transición: sigue la barra del nav sin lag */
-            transition: none;
         }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; cursor: pointer; color: #3a3a3a; transition: color 0.2s ease; padding: 8px 0; position: relative; }
         .nav-btn svg { width: 21px; height: 21px; transition: transform 0.2s ease; }
@@ -1660,69 +1655,37 @@ if ('IntersectionObserver' in window) {
 
 
 <script>
-/* ── visualViewport: ancla header arriba y nav abajo
-   aunque la barra del browser aparezca / desaparezca ── */
+/* ── Ancla el nav inferior al fondo del viewport visible.
+   Solo actúa en el evento resize del visualViewport (cuando la barra
+   del navegador aparece o desaparece), NO durante el scroll normal.
+   Esto elimina los parpadeos. ── */
 (function () {
     'use strict';
 
-    const nav      = document.querySelector('.bottom-nav');
-    const header   = document.querySelector('header');
-    const tabsWrap = document.querySelector('.tabs-wrap');
-    const cartBar  = document.getElementById('cart-bar');
+    const nav     = document.querySelector('.bottom-nav');
+    const cartBar = document.getElementById('cart-bar');
 
-    if (!window.visualViewport) return;
+    if (!nav || !window.visualViewport) return;
 
-    let ticking = false;
-
-    function pin() {
+    function pinBottom() {
         const vv = window.visualViewport;
+        /* Diferencia entre el layout viewport y el visual viewport.
+           Cuando la barra del browser está visible, vv.height < window.innerHeight.
+           Subimos el nav esa diferencia para que quede pegado al fondo visible. */
+        const gap = Math.max(0, window.innerHeight - vv.height);
+        nav.style.transform = `translate3d(0, ${-gap}px, 0)`;
 
-        /* ── BARRA INFERIOR ──
-           El layout viewport (window.innerHeight) es mayor que el visual viewport
-           cuando la barra del navegador está visible.
-           Desplazamos el nav hacia arriba exactamente esa diferencia. */
-        const offsetBottom = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-
-        if (nav) {
-            nav.style.transform = `translate3d(0, ${-offsetBottom}px, 0)`;
-        }
-
-        /* ── BARRA SUPERIOR ──
-           vv.offsetTop indica cuánto se ha desplazado la barra de dirección
-           hacia arriba (empuja el viewport hacia abajo).
-           Compensamos para que header y tabs siempre aparezcan en top:0. */
-        const offsetTop = Math.max(0, vv.offsetTop);
-
-        if (header) {
-            header.style.transform = `translate3d(0, ${offsetTop}px, 0)`;
-        }
-        if (tabsWrap) {
-            tabsWrap.style.transform = `translate3d(0, ${offsetTop}px, 0)`;
-        }
-
-        /* ── CARRITO FLOTANTE ── */
         if (cartBar) {
-            const navH = nav
-                ? (parseFloat(getComputedStyle(nav).height) || 60)
-                : 60;
-            cartBar.style.bottom = `${navH + offsetBottom + 8}px`;
-        }
-
-        ticking = false;
-    }
-
-    function schedule() {
-        if (!ticking) {
-            ticking = true;
-            requestAnimationFrame(pin);
+            const navH = parseFloat(getComputedStyle(nav).height) || 60;
+            cartBar.style.bottom = (navH + gap) + 'px';
         }
     }
 
-    window.visualViewport.addEventListener('resize', schedule, { passive: true });
-    window.visualViewport.addEventListener('scroll', schedule, { passive: true });
+    /* Solo escuchar resize (cambio de tamaño del viewport = barra nav aparece/desaparece).
+       El evento scroll del visualViewport causa los parpadeos y no es necesario aquí. */
+    window.visualViewport.addEventListener('resize', pinBottom, { passive: true });
 
-    // Llamada inicial
-    pin();
+    pinBottom();
 })();
 </script>
 </body>
