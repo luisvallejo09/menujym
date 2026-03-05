@@ -877,26 +877,40 @@ function renderMenu() {
     }).join('');
 }
 
-function renderItemGrid(p, c) {
-    const id  = encodeURIComponent(p.name);
-    const inC = !!cart[p.name];
-    const sn  = p.name.replace(/'/g,"\\'");
-    const sc  = c.replace(/'/g,"\\'");
-    const img = p.img
-        ? `<img src="${p.img}" loading="lazy" decoding="async">`
-        : `<span class="item-emoji">🍔</span>`;
+const _itemIdCache = new Map();
+function safeItemId(name, cat) {
+    const key = (cat || '') + '||' + name;
+    if (!_itemIdCache.has(key)) {
+        _itemIdCache.set(key, 'item_' + _itemIdCache.size);
+    }
+    return _itemIdCache.get(key);
+}
 
-    // Botón de cantidad en el FOOTER — fuera de la imagen para que no se superponga
+// Datos de cada item accesibles por safeId — se llenan en cada render
+const _d = {};
+// lookup: "cat||name" → id (para funciones que solo tienen nombre+cat)
+const _idLookup = {};
+
+function renderItemGrid(p, c) {
+    const id = safeItemId(p.name, c);
+    _d[id]   = { name: p.name, price: p.price, cat: c };
+    _idLookup[c + '||' + p.name] = id;
+    const inC = !!cart[p.name];
+    const qty = inC ? cart[p.name].qty : 0;
+    const img = p.img ? `<img src="${p.img}" loading="lazy" decoding="async">` : `<span class="item-emoji">🍔</span>`;
+
+    const expanded   = inC && qty > 1;
     const qtyContent = inC
-        ? `<button class="q-btn" onclick="changeQty(event,'${sn}',-1)">−</button><span class="qty-val-g" id="val-${id}">${cart[p.name].qty}</span><button class="q-btn" onclick="changeQty(event,'${sn}',1)">+</button>`
+        ? (expanded
+            ? `<button class="q-btn" onclick="cq('${id}',-1)">−</button><span class="qty-val-g" id="val-${id}">${qty}</span><button class="q-btn" onclick="cq('${id}',1)">+</button>`
+            : `<span class="qty-val-g" id="val-${id}" style="font-size:15px">${qty}</span>`)
         : `<span style="font-size:16px;line-height:1;">+</span>`;
 
-    const adics    = inC && cart[p.name].adicionales && cart[p.name].adicionales.length > 0;
+    const adics     = inC && cart[p.name].adicionales && cart[p.name].adicionales.length > 0;
     const adicLabel = adics ? `✓ ${cart[p.name].adicionales.join(' · ')}` : '＋ Extra';
     const adicClass = adics ? 'btn-adic-grid has-adic' : 'btn-adic-grid';
-    const platoDispo = getAdicParaPlato(p.name);
-    const adicBtn = platoDispo.length
-        ? `<button class="${adicClass}" id="adic-btn-${id}" onclick="abrirAdicionales(event,'${sn}','${sc}')">${adicLabel}</button>`
+    const adicBtn   = getAdicParaPlato(p.name).length
+        ? `<button class="${adicClass}" id="adic-btn-${id}" onclick="aa('${id}')">${adicLabel}</button>`
         : '';
 
     return `<div class="item${inC?' in-cart':''}">
@@ -907,7 +921,7 @@ function renderItemGrid(p, c) {
             <div class="item-grid-footer">
                 <div class="item-price-row">
                     <span class="item-price">$${p.price.toLocaleString('es-CO')}</span>
-                    <div class="qty-btn-g${inC?' expanded':''}" id="qty-btn-${id}" onclick="expandBtn('${sn}',${p.price},'${sc}')">${qtyContent}</div>
+                    <div class="qty-btn-g${expanded?' expanded':''}" id="qty-btn-${id}" onclick="ei(event,'${id}')">${qtyContent}</div>
                 </div>
                 ${adicBtn}
             </div>
@@ -916,16 +930,61 @@ function renderItemGrid(p, c) {
 }
 
 function renderItemList(p, c) {
-    const id = encodeURIComponent(p.name); const inC = !!cart[p.name];
-    const sn = p.name.replace(/'/g,"\\'"); const sc = c.replace(/'/g,"\\'");
+    const id = safeItemId(p.name, c);
+    _d[id]   = { name: p.name, price: p.price, cat: c };
+    _idLookup[c + '||' + p.name] = id;
+    const inC = !!cart[p.name];
+    const qty = inC ? cart[p.name].qty : 0;
     const img = p.img ? `<img src="${p.img}" loading="lazy" decoding="async">` : `<span class="item-emoji">🍔</span>`;
-    const btn = inC ? `<button class="q-btn" onclick="changeQty(event,'${sn}',-1)">−</button><span class="qty-val" id="val-${id}">${cart[p.name].qty}</span><button class="q-btn" onclick="changeQty(event,'${sn}',1)">+</button>` : `<span style="font-size:18px">+</span>`;
-    const adics = cart[p.name] && cart[p.name].adicionales && cart[p.name].adicionales.length > 0;
+
+    const expanded = inC && qty > 1;
+    const btn = inC
+        ? (expanded
+            ? `<button class="q-btn" onclick="cq('${id}',-1)">−</button><span class="qty-val" id="val-${id}">${qty}</span><button class="q-btn" onclick="cq('${id}',1)">+</button>`
+            : `<span class="qty-val" id="val-${id}" style="font-size:14px">${qty}</span>`)
+        : `<span style="font-size:18px">+</span>`;
+
+    const adics     = inC && cart[p.name].adicionales && cart[p.name].adicionales.length > 0;
     const adicLabel = adics ? '✓ Extra' : '＋ Extra';
     const adicClass = adics ? 'btn-adic-h has-adic' : 'btn-adic-h';
-    const platoDispo = getAdicParaPlato(p.name);
-    const adicBtn = platoDispo.length ? `<button class="${adicClass}" id="adic-btn-${id}" onclick="abrirAdicionales(event,'${sn}','${sc}')">${adicLabel}</button>` : '';
-    return `<div class="item-h${inC?' in-cart':''}"><div class="item-h-img">${img}</div><div class="item-h-info"><div class="item-h-name">${p.name}</div><div class="item-h-desc">${p.desc||''}</div><div class="item-h-bottom"><div class="item-h-price">$${p.price.toLocaleString('es-CO')}</div><div class="item-h-actions">${adicBtn}<div class="qty-btn-h${inC?' expanded':''}" id="qty-btn-${id}" onclick="expandBtn('${sn}',${p.price},'${sc}')">${btn}</div></div></div></div></div>`;
+    const adicBtn   = getAdicParaPlato(p.name).length
+        ? `<button class="${adicClass}" id="adic-btn-${id}" onclick="aa('${id}')">${adicLabel}</button>`
+        : '';
+    return `<div class="item-h${inC?' in-cart':''}"><div class="item-h-img">${img}</div><div class="item-h-info"><div class="item-h-name">${p.name}</div><div class="item-h-desc">${p.desc||''}</div><div class="item-h-bottom"><div class="item-h-price">$${p.price.toLocaleString('es-CO')}</div><div class="item-h-actions">${adicBtn}<div class="qty-btn-h${expanded?' expanded':''}" id="qty-btn-${id}" onclick="ei(event,'${id}')">${btn}</div></div></div></div></div>`;
+}
+
+// ei = expandItem, cq = changeQty, aa = abrirAdicionales — nombres cortos para onclicks
+function ei(e, id) {
+    if (e.target.closest('.q-btn')) return;
+    const { name, price, cat } = _d[id] || {};
+    if (!name) return;
+    const btnEl  = e.currentTarget;
+    const isGrid = btnEl.classList.contains('qty-btn-g');
+    const valCls = isGrid ? 'qty-val-g' : 'qty-val';
+    if (!cart[name]) {
+        cart[name] = { price, qty: 1, cat, note: '' };
+        updateCartUI();
+        btnEl.innerHTML = `<button class="q-btn" onclick="cq('${id}',-1)">−</button><span class="${valCls}" id="val-${id}">1</span><button class="q-btn" onclick="cq('${id}',1)">+</button>`;
+        btnEl.classList.add('expanded');
+        const item = btnEl.closest('.item, .item-h');
+        if (item) item.classList.add('in-cart');
+        setTimeout(() => mostrarUpsell(name), isGrid ? 600 : 350);
+    } else {
+        if (!btnEl.querySelector('.q-btn')) {
+            btnEl.innerHTML = `<button class="q-btn" onclick="cq('${id}',-1)">−</button><span class="${valCls}" id="val-${id}">${cart[name].qty}</span><button class="q-btn" onclick="cq('${id}',1)">+</button>`;
+        }
+        btnEl.classList.add('expanded');
+        const item = btnEl.closest('.item, .item-h');
+        if (item) item.classList.add('in-cart');
+    }
+    resetTimer(id);
+}
+function cq(id, delta) {
+    changeQty(null, id, delta);
+}
+function aa(id) {
+    const { name, cat } = _d[id] || {};
+    if (name) abrirAdicionales(null, name, cat);
 }
 
 function renderPromos() {
@@ -991,74 +1050,57 @@ window.addEventListener('scroll', () => {
     }
 }, { passive: true });
 
-function expandBtn(name, price, cat) {
-    const id  = encodeURIComponent(name);
+
+
+function colapsarBtn(id) {
+    clearTimeout(timers[id]);
+    timers[id] = null;
     const btn = document.getElementById('qty-btn-' + id);
-    if (!cart[name]) {
-        cart[name] = { price, qty: 1, cat, note: '' };
-        updateCartUI();
-        if (btn) {
-            const isGrid = btn.classList.contains('qty-btn-g');
-            const valCls = isGrid ? 'qty-val-g' : 'qty-val';
-            const esc    = name.replace(/'/g,"\\'");
-            btn.innerHTML = `<button class="q-btn" onclick="changeQty(event,'${esc}',-1)">−</button><span class="${valCls}" id="val-${id}">1</span><button class="q-btn" onclick="changeQty(event,'${esc}',1)">+</button>`;
-            // Force reflow to trigger CSS transition animation
-            btn.getBoundingClientRect();
-            btn.classList.add('expanded');
-            const item = btn.closest('.item, .item-h');
-            if (item) item.classList.add('in-cart');
-        }
-        setTimeout(() => mostrarUpsell(name), currentView === 'grid' ? 600 : 350);
-    } else {
-        if (btn) {
-            // Refresh inner content in case it was cleared, then animate
-            const isGrid = btn.classList.contains('qty-btn-g');
-            const valCls = isGrid ? 'qty-val-g' : 'qty-val';
-            const esc    = name.replace(/'/g,"\\'");
-            if (!btn.querySelector('.q-btn')) {
-                btn.innerHTML = `<button class="q-btn" onclick="changeQty(event,'${esc}',-1)">−</button><span class="${valCls}" id="val-${id}">${cart[name].qty}</span><button class="q-btn" onclick="changeQty(event,'${esc}',1)">+</button>`;
-            }
-            btn.getBoundingClientRect();
-            btn.classList.add('expanded');
-        }
-    }
-    resetTimer(name);
+    if (btn) btn.classList.remove('expanded');
 }
-function resetTimer(name) {
-    if (timers[name]) clearTimeout(timers[name]);
-    timers[name] = setTimeout(() => { const btn = document.getElementById('qty-btn-' + encodeURIComponent(name)); if (btn) btn.classList.remove('expanded'); }, 3000);
+
+function resetTimer(id) {
+    clearTimeout(timers[id]);
+    timers[id] = setTimeout(() => colapsarBtn(id), 3000);
 }
+
+// Scroll acelera el colapso a 800ms
 window.addEventListener('scroll', () => {
-    Object.keys(timers).forEach(name => {
-        if (timers[name]) { clearTimeout(timers[name]); timers[name] = setTimeout(() => { const btn = document.getElementById('qty-btn-' + encodeURIComponent(name)); if (btn) btn.classList.remove('expanded'); }, 800); }
+    Object.keys(timers).forEach(id => {
+        if (!timers[id]) return;
+        clearTimeout(timers[id]);
+        timers[id] = setTimeout(() => colapsarBtn(id), 800);
     });
 }, { passive: true });
 
-function changeQty(e, name, delta) {
+function changeQty(e, id, delta) {
     if (e) e.stopPropagation();
+    const rec = _d[id];
+    if (!rec) return;
+    const { name } = rec;
     if (!cart[name]) return;
     cart[name].qty += delta;
-    const id = encodeURIComponent(name);
     const btn = document.getElementById('qty-btn-' + id);
     if (cart[name].qty <= 0) {
         delete cart[name];
         if (btn) {
-                btn.classList.remove('expanded');
-                const isGrid = btn.classList.contains('qty-btn-g');
-                btn.innerHTML = `<span style="font-size:${isGrid?'16':'20'}px;line-height:1;">+</span>`;
-                const item = btn.closest('.item, .item-h');
-                if (item) {
-                    item.classList.remove('in-cart');
-                    const adicBtn = item.querySelector('.btn-adicionales, .btn-adic-h, .btn-adic-grid');
-                    if (adicBtn) { adicBtn.classList.remove('has-adic'); adicBtn.textContent = '＋ Extra'; }
-                }
+            btn.classList.remove('expanded');
+            const isGrid = btn.classList.contains('qty-btn-g');
+            btn.innerHTML = `<span style="font-size:${isGrid?'16':'20'}px;line-height:1;">+</span>`;
+            const item = btn.closest('.item, .item-h');
+            if (item) {
+                item.classList.remove('in-cart');
+                const adicBtn = item.querySelector('.btn-adic-h, .btn-adic-grid');
+                if (adicBtn) { adicBtn.classList.remove('has-adic'); adicBtn.textContent = '＋ Extra'; }
             }
+        }
     } else {
-        const v = document.getElementById('val-' + id); if (v) v.innerText = cart[name].qty;
-        resetTimer(name);
+        const v = document.getElementById('val-' + id);
+        if (v) v.innerText = cart[name].qty;
+        resetTimer(id);
     }
     updateCartUI();
-    if (document.getElementById('form-modal').style.display==='flex') showForm();
+    if (document.getElementById('form-modal').style.display === 'flex') showForm();
 }
 
 function updateCartUI() {
@@ -1098,11 +1140,11 @@ function toggleAdic(name) {
     document.querySelectorAll('#adic-chips .adic-chip').forEach(chip => { chip.classList.toggle('selected', _adicState.selected.has(chip.querySelector('.adic-chip-name').textContent)); });
 }
 function confirmarAdicionales() {
-    const { itemName } = _adicState;
+    const { itemName, cat: itemCat } = _adicState;
     if (!itemName || !cart[itemName]) { cerrarAdicionales(); return; }
     const selArr = [..._adicState.selected];
     cart[itemName].adicionales = selArr;
-    const id = encodeURIComponent(itemName);
+    const id = _idLookup[(itemCat||'') + '||' + itemName] || safeItemId(itemName, itemCat);
     const btn = document.getElementById('adic-btn-' + id);
     if (btn) {
         if (selArr.length > 0) {
@@ -1158,9 +1200,9 @@ function showForm() {
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:6px;background:#1a1a1a;padding:3px 8px;border-radius:18px;flex-shrink:0;">
-                        <button onclick="changeQty(null,'${item.nombre}',-1)" style="color:var(--brand);border:none;background:none;font-weight:900;cursor:pointer;width:22px;font-size:17px;line-height:1;">−</button>
+                        <button class="form-qty-btn" data-name="${item.nombre.replace(/"/g,'&quot;')}" data-delta="-1" style="color:var(--brand);border:none;background:none;font-weight:900;cursor:pointer;width:22px;font-size:17px;line-height:1;">−</button>
                         <span style="min-width:14px;text-align:center;font-weight:800;font-size:13px;">${item.qty}</span>
-                        <button onclick="changeQty(null,'${item.nombre}',1)" style="color:var(--brand);border:none;background:none;font-weight:900;cursor:pointer;width:22px;font-size:17px;line-height:1;">+</button>
+                        <button class="form-qty-btn" data-name="${item.nombre.replace(/"/g,'&quot;')}" data-delta="1" style="color:var(--brand);border:none;background:none;font-weight:900;cursor:pointer;width:22px;font-size:17px;line-height:1;">+</button>
                     </div>
                 </div>
                 <!-- Extras / adicionales con precio -->
@@ -1179,20 +1221,8 @@ function showForm() {
         });
     });
     const notaDom = modoEntrega==='Domicilio' ? `<div class="nota-envio">⚠️ <b>TOTAL PARCIAL</b> — El costo del envío se coordina por WhatsApp.</div>` : '';
-    const tipAmount = Math.round(total * tipPct / 100);
-    const grandTotal = total + tipAmount;
     html += `<div class="total-row"><span class="total-label">SUBTOTAL</span><span class="total-value">$${total.toLocaleString('es-CO')}</span></div>${notaDom}`;
-    html += `
-    <div class="tip-section">
-        <div class="tip-label">🙏 Propina sugerida <span id="tip-pct-label">${tipPct > 0 ? tipPct+'%' : 'Sin propina'}</span></div>
-        <div class="tip-btns">
-            <button class="tip-btn${tipPct===0?' active':''}" onclick="setTip(0)">Sin propina</button>
-            <button class="tip-btn${tipPct===10?' active':''}" onclick="setTip(10)">10%</button>
-            <button class="tip-btn${tipPct===15?' active':''}" onclick="setTip(15)">15%</button>
-        </div>
-        ${tipAmount > 0 ? `<div class="tip-row"><span>Propina (${tipPct}%)</span><span class="tip-amount">+$${tipAmount.toLocaleString('es-CO')}</span></div>` : ''}
-        <div class="total-final-row"><span class="total-final-label">TOTAL</span><span class="total-final-value">$${grandTotal.toLocaleString('es-CO')}</span></div>
-    </div>`;
+    html += `<div class="total-final-row"><span class="total-final-label">TOTAL</span><span class="total-final-value">$${total.toLocaleString('es-CO')}</span></div>`;
     document.getElementById('resumen-lista').innerHTML = html;
     document.getElementById('form-modal').style.display = 'flex';
 }
@@ -1284,7 +1314,7 @@ function doSearch(q) {
     }).join('');
 }
 function handleSearchClick(idx) { const p=window._searchResults&&window._searchResults[idx]; if(!p) return; if(p.type==='pizza'){closeSearch();setTimeout(()=>openPizzaModal(p.name),200);}else{selectSearchItem(p.cat,p.name);} }
-function selectSearchItem(cat,name) { closeSearch(); setTimeout(()=>{scrollToCat(cat);setTimeout(()=>{const id=encodeURIComponent(name);const el=document.getElementById('qty-btn-'+id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.transition='box-shadow 0.3s';el.style.boxShadow='0 0 0 3px var(--brand)';setTimeout(()=>el.style.boxShadow='',1500);}},400);},200); }
+function selectSearchItem(cat,name) { closeSearch(); setTimeout(()=>{scrollToCat(cat);setTimeout(()=>{const id=_idLookup[(cat||'')+'||'+name]||safeItemId(name,cat);const el=document.getElementById('qty-btn-'+id);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.transition='box-shadow 0.3s';el.style.boxShadow='0 0 0 3px var(--brand)';setTimeout(()=>el.style.boxShadow='',1500);}},400);},200); }
 
 function goHome() { closeDrawer(); closeSearch(); window.scrollTo({top:0,behavior:'smooth'}); setNavActive('nav-home'); }
 function setNavActive(id) { document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); const el=document.getElementById(id); if(el) el.classList.add('active'); }
@@ -1442,6 +1472,24 @@ function addPizzaToCart() {
 
 loadData().then(() => initViewToggle());
 
+// ── EVENT DELEGATION: solo modal de pedido y colapso ──
+document.addEventListener('click', function(e) {
+    // Botones +/- dentro del modal de pedido (resumen)
+    const formQtyBtn = e.target.closest('.form-qty-btn');
+    if (formQtyBtn) {
+        changeQty(e, formQtyBtn.dataset.name, parseInt(formQtyBtn.dataset.delta, 10));
+        return;
+    }
+
+    // Botón de adicionales del menú (por si viene de delegation)
+    const adicBtn = e.target.closest('.btn-adic-grid, .btn-adic-h');
+    if (adicBtn && adicBtn.dataset.item) {
+        e.stopPropagation();
+        abrirAdicionales(e, adicBtn.dataset.item, adicBtn.dataset.cat);
+        return;
+    }
+});
+
 // ══════════════════════════════════════════════════════
 //  TUTORIAL TOAST — CORREGIDO
 //  - Espera a que loadData() haya renderizado el toggle
@@ -1548,7 +1596,9 @@ function mostrarUpsell(itemName) {
     const tip=document.getElementById('upsell-tip'); if(!tip) return;
     _upsellSessionShown=true; _upsellShownCount++;
     try{localStorage.setItem('dff_upsell_shown',_upsellShownCount);}catch(e){}
-    const id=encodeURIComponent(itemName); const btn=document.getElementById('adic-btn-'+id);
+    const itemCat=cart[itemName]?cart[itemName].cat:'';
+    const id=_idLookup[(itemCat||'')+'||'+itemName]||safeItemId(itemName,itemCat);
+    const btn=document.getElementById('adic-btn-'+id);
     clearTimeout(_upsellTimer);
     function posicionarTip() {
         if(!btn||btn.offsetParent===null){tip.style.cssText='display:flex;position:fixed;left:50%;transform:translateX(-50%);bottom:110px;top:auto;width:220px;';}
@@ -1562,7 +1612,9 @@ function mostrarUpsell(itemName) {
 }
 
 function vibrarBtnAdic(itemName) {
-    const id=encodeURIComponent(itemName); const btn=document.getElementById('adic-btn-'+id) || document.querySelector('.btn-adic-grid'); if(!btn) return;
+    const itemCat=cart[itemName]?cart[itemName].cat:'';
+    const id=_idLookup[(itemCat||'')+'||'+itemName]||safeItemId(itemName,itemCat);
+    const btn=document.getElementById('adic-btn-'+id) || document.querySelector('.btn-adic-grid'); if(!btn) return;
     const wasHidden=getComputedStyle(btn).display==='none';
     if(wasHidden){btn.style.display='flex';btn.style.alignItems='center';}
     btn.classList.remove('adic-vibrate'); void btn.offsetWidth; btn.classList.add('adic-vibrate');
